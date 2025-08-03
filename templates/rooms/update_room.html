@@ -1,20 +1,46 @@
-{% extends 'base.html' %}
-{% block title %}Edit Ruangan{% endblock %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Ruangan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2k6+dENwR43Fq+dD2o1QjV+s3qQ" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="bg-blue-50 min-h-screen flex items-center justify-center p-4">
 
-{% block content %}
-<div class="col-md-6 offset-md-3">
-    <h2 class="mb-4">Edit Ruangan</h2>
-    <form method="POST">
-        <div class="mb-3">
-            <label for="name" class="form-label">Nama Ruangan</label>
-            <input type="text" class="form-control" id="name" name="name" value="{{ room.name }}" required>
+    <!-- Container Utama -->
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+
+        <!-- Header Halaman -->
+        <div class="flex items-center mb-6 border-b pb-4">
+            <i class="fa-solid fa-pen-to-square text-blue-600 text-3xl mr-3"></i>
+            <h2 class="text-3xl font-bold text-gray-800">Edit Ruangan</h2>
         </div>
-        <div class="mb-3">
-            <label for="lantai" class="form-label">Lantai</label>
-            <input type="text" class="form-control" id="lantai" name="lantai" value="{{ room.lantai }}" required>
-        </div>
-        <button type="submit" class="btn btn-warning">Update</button>
-        <a href="{{ url_for('manage_rooms') }}" class="btn btn-secondary">Batal</a>
-    </form>
-</div>
-{% endblock %}
+
+        <!-- Formulir Edit Ruangan -->
+        <form method="POST">
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nama Ruangan</label>
+                <input type="text" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" id="name" name="name" value="{{ room.name }}" required>
+            </div>
+            <div class="mb-6">
+                <label for="lantai" class="block text-gray-700 text-sm font-bold mb-2">Lantai</label>
+                <input type="text" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" id="lantai" name="lantai" value="{{ room.lantai }}" required>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button type="submit" class="w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-full shadow-md transition-colors duration-300">
+                    <i class="fa-solid fa-sync mr-2"></i> Update
+                </button>
+                <a href="{{ url_for('manage_rooms') }}" class="w-full sm:w-1/2 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-full shadow-md transition-colors duration-300">
+                    <i class="fa-solid fa-ban mr-2"></i> Batal
+                </a>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>

@@ -8,6 +8,23 @@ debug development :
 2. FLASK_ENV=development flask run --host=0.0.0.0 --port=5001
 
 
-update di production
-1. pkill gunicorn
-2. nohup gunicorn app:app --bind 127.0.0.1:5000 &
+
+----------------------------------
+fixing langsung 
+*kill dulu gunicorn , baru jalankan python app.py di mesin dan run prod
+
+ - pkill gunicorn
+ - python app.py
+
+ - nohup gunicorn app:app --bind 127.0.0.1:5000 &
+
+
+-----------------------------------
+
+
+# fixing dari github 
+step deploy 
+ - chmod +x deploy.sh
+ - bash deploy.sh
+
+

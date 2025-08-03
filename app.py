@@ -690,8 +690,14 @@ def export_schedule():
 
 @app.route('/admin/users')
 def manage_users():
-    users = User.query.all()
-    return render_template('manage_users.html', users=users, user=None)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    all_users = User.query.order_by(User.username).all()
+    total_pages = ceil(len(all_users) / per_page)
+    users = all_users[(page - 1) * per_page: page * per_page]
+
+    return render_template("manage_users.html", users=users, page=page, total_pages=total_pages)
+
 
 @app.route('/add_user', methods=['POST'])
 def add_user():

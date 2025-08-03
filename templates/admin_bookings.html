@@ -1,57 +1,67 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Booking</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2k6+dENwR43Fq+dD2o1QjV+s3qQ" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
 
-{% block title %}Kelola Booking{% endblock %}
-
-{% block content %}
-<div class="container py-5">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-3 mb-md-0 text-dark">
-            <i class="bi bi-calendar-check me-2 text-primary"></i>Kelola Booking
-        </h2>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary d-flex align-items-center">
-                <i class="bi bi-house-door me-2"></i> Kembali ke Home
-            </a>
-            <button type="submit" form="bulk-delete-form" class="btn btn-danger d-flex align-items-center" onclick="return confirm('Yakin ingin menghapus semua booking yang dipilih?');">
-                <i class="bi bi-trash me-2"></i> Hapus yang dipilih
-            </button>
+<div class="bg-blue-50 min-h-screen p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
+                <i class="fa-solid fa-calendar-check text-blue-600 mr-3"></i>Kelola Booking
+            </h2>
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <a href="{{ url_for('home') }}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-300">
+                    <i class="fa-solid fa-house-door text-gray-500 mr-2"></i> Kembali ke Home
+                </a>
+                <button type="button" id="bulk-delete-btn" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors duration-300">
+                    <i class="fa-solid fa-trash-can mr-2"></i> Hapus yang dipilih
+                </button>
+            </div>
         </div>
-    </div>
 
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-body p-0">
-            <div class="table-responsive">
+        <!-- Tabel Booking -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div class="overflow-x-auto">
                 <form id="bulk-delete-form" method="POST" action="{{ url_for('bulk_delete_bookings') }}">
-                    <table class="table table-hover table-striped mb-0">
-                        <thead class="table-light">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-blue-100">
                             <tr>
-                                <th class="text-center" scope="col">
-                                    <input type="checkbox" id="select-all">
+                                <th scope="col" class="p-4 text-center">
+                                    <input type="checkbox" id="select-all" class="form-checkbox h-5 w-5 text-blue-600 rounded">
                                 </th>
-                                <th scope="col">Ruangan</th>
-                                <th class="d-none d-md-table-cell" scope="col">Departemen</th>
-                                <th class="d-none d-lg-table-cell" scope="col">Deskripsi</th>
-                                <th scope="col">Mulai</th>
-                                <th class="d-none d-sm-table-cell" scope="col">Selesai</th>
-                                <th class="text-center" scope="col">Aksi</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ruangan</th>
+                                <th scope="col" class="hidden md:table-cell px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Departemen</th>
+                                <th scope="col" class="hidden lg:table-cell px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Deskripsi</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Mulai</th>
+                                <th scope="col" class="hidden sm:table-cell px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Selesai</th>
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
                             {% for b in bookings.items %}
                             <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" name="booking_ids" value="{{ b.id }}">
+                                <td class="p-4 text-center">
+                                    <input type="checkbox" name="booking_ids" value="{{ b.id }}" class="form-checkbox h-5 w-5 text-blue-600 rounded">
                                 </td>
-                                <td>{{ b.room.name }}</td>
-                                <td class="d-none d-md-table-cell">{{ b.department }}</td>
-                                <td class="d-none d-lg-table-cell text-truncate" style="max-width: 150px;">{{ b.description }}</td>
-                                <td>{{ b.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td class="d-none d-sm-table-cell">{{ b.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center align-items-center gap-2">
-                                        <form action="{{ url_for('delete_booking', booking_id=b.id) }}" method="post" onsubmit="return confirm('Yakin ingin menghapus booking ini?');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
-                                                <i class="bi bi-trash-fill"></i>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ b.room.name }}</td>
+                                <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ b.department }}</td>
+                                <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">{{ b.description }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ b.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ b.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-center items-center gap-2">
+                                        <form id="delete-form-{{ b.id }}" action="{{ url_for('delete_booking', booking_id=b.id) }}" method="post">
+                                            <button type="button" class="delete-single-btn text-red-600 hover:text-red-800 transition-colors duration-300" title="Hapus" data-booking-id="{{ b.id }}">
+                                                <i class="fa-solid fa-trash-can"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -60,7 +70,7 @@
                             {% endfor %}
                             {% if not bookings.items %}
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Tidak ada booking yang tersedia.</td>
+                                <td colspan="7" class="text-center text-gray-500 py-6">Tidak ada booking yang tersedia.</td>
                             </tr>
                             {% endif %}
                         </tbody>
@@ -68,21 +78,43 @@
                 </form>
             </div>
         </div>
-    </div>
 
-    <nav aria-label="Pagination" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% for page_num in bookings.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                {% if page_num %}
-                    <li class="page-item {% if page_num == bookings.page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('manage_bookings', page=page_num) }}">{{ page_num }}</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link">…</span></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </nav>
+        <!-- Pagination -->
+        <nav aria-label="Pagination" class="mt-8">
+            <ul class="flex justify-center space-x-2">
+                {% for page_num in bookings.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="{% if page_num == bookings.page %}bg-blue-600 text-white{% else %}bg-white text-gray-700 hover:bg-blue-50{% endif %} rounded-full transition-colors duration-300">
+                            <a class="flex items-center justify-center w-10 h-10 font-semibold" href="{{ url_for('manage_bookings', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="w-10 h-10 flex items-center justify-center text-gray-500">
+                            <span>…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Modal Pop-up untuk Konfirmasi Hapus -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300">
+        <div class="text-center text-red-500 text-6xl mb-4">
+            <i class="fas fa-exclamation-triangle animate-pulse"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 text-center mb-2">Konfirmasi Hapus</h3>
+        <p id="modal-message" class="text-gray-600 text-center mb-6">Apakah Anda yakin ingin menghapus booking ini?</p>
+        <div class="flex justify-center gap-4">
+            <button id="cancel-delete-btn" class="w-full py-3 px-4 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 transition-colors duration-300">
+                Batal
+            </button>
+            <button id="confirm-delete-btn" class="w-full py-3 px-4 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors duration-300">
+                Ya, Hapus
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -94,5 +126,72 @@
         }
     });
 
+    // --- Logika Modal Pop-up ---
+    const deleteModal = document.getElementById('deleteModal');
+    const modalMessage = document.getElementById('modal-message');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    let formToSubmit = null; // Variabel untuk menyimpan form yang akan disubmit
+
+    // Fungsi untuk menampilkan modal
+    function showModal(message) {
+        modalMessage.textContent = message;
+        deleteModal.classList.remove('hidden');
+        deleteModal.classList.add('flex');
+    }
+
+    // Fungsi untuk menyembunyikan modal
+    function hideModal() {
+        deleteModal.classList.remove('flex');
+        deleteModal.classList.add('hidden');
+        formToSubmit = null; // Reset form
+    }
+
+    // Event listener untuk tombol Hapus yang dipilih
+    bulkDeleteBtn.addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('input[name="booking_ids"]:checked');
+        if (checkboxes.length > 0) {
+            formToSubmit = document.getElementById('bulk-delete-form');
+            showModal(`Anda yakin ingin menghapus ${checkboxes.length} booking yang dipilih?`);
+        } else {
+            // Mengganti alert dengan modal yang bagus
+            showModal("Pilih setidaknya satu booking untuk dihapus.");
+            // Ubah tombol konfirmasi menjadi tombol OK atau sembunyikan
+            confirmDeleteBtn.classList.add('hidden');
+            cancelDeleteBtn.textContent = 'OK';
+        }
+    });
+
+    // Event listener untuk tombol Hapus per baris (menggunakan event delegation)
+    document.querySelector('table tbody').addEventListener('click', function(e) {
+        if (e.target.closest('.delete-single-btn')) {
+            e.preventDefault();
+            const button = e.target.closest('.delete-single-btn');
+            const bookingId = button.dataset.bookingId;
+            formToSubmit = document.getElementById(`delete-form-${bookingId}`);
+            showModal('Anda yakin ingin menghapus booking ini?');
+            // Pastikan tombol konfirmasi terlihat dan tombol batal kembali normal
+            confirmDeleteBtn.classList.remove('hidden');
+            cancelDeleteBtn.textContent = 'Batal';
+        }
+    });
+
+    // Event listener untuk tombol "Ya, Hapus" di dalam modal
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (formToSubmit) {
+            formToSubmit.submit(); // Submit form yang tersimpan
+            hideModal();
+        }
+    });
+
+    // Event listener untuk tombol "Batal" dan background modal
+    cancelDeleteBtn.addEventListener('click', hideModal);
+    deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+            hideModal();
+        }
+    });
 </script>
-{% endblock %}
+</body>
+</html>

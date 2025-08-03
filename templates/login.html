@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=bY5t0noHcfXn&format=png&color=000000">
-    <!-- Font Awesome CDN untuk ikon mata pada password -->
+    <!-- Font Awesome CDN untuk ikon mata pada password dan modal -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2k6+dENwR43Fq+dD2o1QjV+s3qQ" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -50,9 +50,17 @@
             <!-- Judul halaman -->
             <h1 class="text-4xl font-bold text-center text-white mb-2 drop-shadow-lg">Login</h1>
             <p class="text-white text-center mb-8 drop-shadow-lg">Silakan masuk ke akun Anda</p>
+            
+            <!-- Flash Message Placeholder -->
+            <div id="flash-message-container" class="hidden">
+                <div class="bg-red-100 text-red-800 rounded-2xl p-4 flex items-center shadow-md" role="alert">
+                    <i class="fas fa-exclamation-circle mr-3 text-2xl"></i>
+                    <span class="font-medium" id="flash-message-text"></span>
+                </div>
+            </div>
 
             <!-- Formulir login -->
-            <form action="#" method="POST" class="space-y-6">
+            <form action="#" method="POST" class="space-y-6" id="loginForm">
                 <!-- Input untuk Username -->
                 <div>
                     <label for="username" class="block text-sm font-medium text-black mb-2">Username</label>
@@ -75,7 +83,7 @@
                 <!-- Tombol Login -->
                 <div>
                     <button type="submit"
-                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 transform hover:scale-105">
+                             class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 transform hover:scale-105">
                         Masuk
                     </button>
                 </div>
@@ -89,19 +97,69 @@
         </div>
     </div>
     
-    <!-- Script untuk toggle ikon mata -->
+    <!-- Modal Notifikasi (Sembunyi secara default) -->
+    <div id="errorModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out opacity-0">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 ease-out">
+            <!-- Icon Notifikasi -->
+            <div class="text-center text-red-500 text-6xl mb-4">
+                <i class="fas fa-exclamation-triangle animate-pulse"></i>
+            </div>
+            <!-- Judul Modal -->
+            <h3 class="text-2xl font-bold text-gray-800 text-center mb-2">Login Gagal</h3>
+            <!-- Isi Pesan -->
+            <p class="text-gray-600 text-center mb-6">Username atau kata sandi yang Anda masukkan salah. Silakan coba lagi.</p>
+            <!-- Tombol Tutup -->
+            <button id="closeModal" class="w-full py-3 px-4 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors duration-300">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Script untuk toggle ikon mata dan menangani modal -->
     <script>
         const toggle = document.getElementById('togglePassword');
-        const password = document.getElementById('password');
+        const passwordInput = document.getElementById('password');
         const eyeIcon = toggle.querySelector('i');
+        const errorModal = document.getElementById('errorModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const flashMessageContainer = document.getElementById('flash-message-container');
+        const flashMessageText = document.getElementById('flash-message-text');
 
+        // Toggle visibility password
         toggle.addEventListener('click', function () {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            // Ganti ikon mata
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
             eyeIcon.classList.toggle('fa-eye');
             eyeIcon.classList.toggle('fa-eye-slash');
         });
+
+        // Menampilkan modal ketika tombol tutup diklik
+        closeModalBtn.addEventListener('click', function () {
+            const modalContent = errorModal.querySelector('div');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                errorModal.classList.remove('flex', 'opacity-100');
+                errorModal.classList.add('hidden', 'opacity-0');
+            }, 300); // Sesuaikan durasi dengan transisi CSS
+        });
+        
+        // Cek apakah ada flash message dari backend (gunakan Jinja untuk menyisipkan pesan)
+        const flashMessage = "{{ get_flashed_messages(with_categories=true) | safe }}";
+
+        if (flashMessage && flashMessage.includes('danger')) {
+            const message = flashMessage.split("'")[3]; // Ambil pesan dari string Jinja
+            flashMessageText.textContent = message;
+            
+            // Tampilkan modal dengan animasi
+            errorModal.classList.remove('hidden', 'opacity-0');
+            errorModal.classList.add('flex', 'opacity-100');
+            setTimeout(() => {
+                const modalContent = errorModal.querySelector('div');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 50);
+        }
     </script>
 </body>
 </html>
