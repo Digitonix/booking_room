@@ -1,0 +1,32 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.waktu-lewat-td {
+  background-color: #ffeaea;
+  color: #b71c1c;
+}
+
+/* Tambahkan ini ke static/style.css */
+.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+
+.dark-mode .table {
+  color: #f1f1f1;
+  background-color: #1e1e1e;
+}
+
+.dark-mode .form-control,
+.dark-mode .btn {
+  background-color: #2a2a2a;
+  color: #fff;
+  border-color: #444;
+}
+
+.dark-mode .btn-danger {
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Upload Image{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white border-bottom-0 rounded-top-4 py-4">
+                    <h2 class="card-title fw-bold mb-0">Upload Image</h2>
+                </div>
+                <div class="card-body p-4 p-md-5">
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="mb-4">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="image" class="form-label fw-bold">Pilih Gambar</label>
+                            <input type="file" class="form-control" name="image" id="image" required accept="image/jpeg" onchange="previewImage(event)">
+                            <div class="form-text">Hanya file JPG/JPEG yang diizinkan, maksimum 5MB.</div>
+                        </div>
+
+                        <div id="previewContainer" class="mb-4 d-none">
+                            <label class="form-label fw-bold">preview image</label>
+                            <br>
+                            <img id="imagePreview" src="#" alt="Pratinjau Gambar" class="img-fluid rounded-3 shadow-sm border border-secondary" style="max-height: 300px; object-fit: cover;">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="caption" class="form-label fw-bold">Caption</label>
+                            <input type="text" class="form-control" name="caption" id="caption" placeholder="Tambahkan deskripsi singkat tentang gambar">
+                        </div>
+
+                        <div class="form-check mb-5">
+                            <input type="checkbox" class="form-check-input" name="is_active" id="is_active" checked>
+                            <label class="form-check-label" for="is_active">Tampilkan di slideshow</label>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button class="btn btn-primary d-flex align-items-center justify-content-center shadow-sm" type="submit">
+                                <i class="bi bi-cloud-arrow-up me-2"></i> Unggah Gambar
+                            </button>
+                            <a href="{{ url_for('manage_images') }}" class="btn btn-outline-secondary d-flex align-items-center">
+                                <i class="bi bi-x-lg me-2"></i> Batal
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                previewContainer.classList.remove('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '#';
+            previewContainer.classList.add('d-none');
+        }
+    }
+</script>
+{% endblock %}

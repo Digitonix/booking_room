@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Booking Saya{% endblock %}
+
+{% block content %}
+<style>
+  .fade-in { animation: fadeInUp 0.7s ease; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .table-wrapper {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    background-color: white;
+  }
+
+  .table thead th {
+    background-color: #212529;
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .table td, .table th { vertical-align: middle; text-align: center; }
+
+  .btn-cancel {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    background-color: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .btn-cancel:hover {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  .badge-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .user-badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 10px;
+    background-color: #6c757d;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .table thead { display: none; }
+    .table, .table tbody, .table tr, .table td {
+      display: block;
+      width: 100%;
+    }
+    .table tr {
+      margin-bottom: 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      padding: 0.75rem;
+      background-color: #f8f9fa;
+    }
+    .table td {
+      text-align: center;
+      padding: 0.5rem 1rem;
+      position: relative;
+    }
+    .table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #495057;
+      text-align: center;
+    }
+    .btn-cancel {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+  }
+</style>
+
+<div class="container-fluid mt-5 px-4 fade-in">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="fw-bold">
+      <i class="bi bi-calendar2-check-fill me-2 text-primary"></i> Daftar Booking 🗓️
+    </h4>
+    <div class="text-end btn-back">
+      <a href="/" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Kembali ke Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter Tanggal -->
+  <form method="GET" class="row g-2 mb-4">
+    <div class="col-auto">
+      <input type="date" name="filter_date" class="form-control"
+             value="{{ request.args.get('filter_date', now.strftime('%Y-%m-%d')) }}">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-funnel-fill me-1"></i> Filter
+      </button>
+      <a href="{{ url_for('my_bookings') }}" class="btn btn-secondary ms-2">Reset</a>
+    </div>
+  </form>
+
+  <div class="mb-3">
+    <h6 class="text-muted">Tanggal hari ini: <strong>{{ today|format_date_id }}</strong></h6>
+  </div>
+
+  {% if bookings %}
+  <div class="table-responsive table-wrapper">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Ruangan</th>
+          <th>Tanggal</th>
+          <th>Waktu</th>
+          <th>Nama</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td data-label="Ruangan">{{ b.room.name }}</td>
+          <td data-label="Tanggal">{{ b.start_time.strftime('%Y-%m-%d') }}</td>
+          <td data-label="Waktu">{{ b.start_time.strftime('%H:%M') }} - {{ b.end_time.strftime('%H:%M') }}</td>
+          <td data-label="Nama"><span class="user-badge">{{ b.user }}</span></td>
+          <td data-label="Username"><span class="user-badge">{{ b.username }}</span></td>
+          <td data-label="Role"><span class="badge-role">{{ b.role }}</span></td>
+          <td data-label="Aksi">
+            {% if (session['role'] == 'admin' or session['username'] == b.username) and b.start_time > now %}
+            <form method="POST" action="{{ url_for('cancel_booking', booking_id=b.id) }}" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-cancel" onclick="return confirm('Yakin ingin membatalkan booking?')">
+                Batalkan
+              </button>
+            </form>
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-warning mt-4" role="alert">
+    Belum ada data booking.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

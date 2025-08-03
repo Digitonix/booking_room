@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Jadwal Ruangan TV Display</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=86639&format=png&color=000000">
+
+    <style>
+        /* CSS Variables untuk konsistensi */
+        :root {
+            --primary-color: #1A365D;
+            --secondary-color: #1A365D;
+            --background-color: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.3);
+            --booked-color: #b6c3ff;
+            --available-color: #E8F5E9;
+            --booked-text-color: #FFFFFF;
+            --available-text-color: #4CAF50;
+            --highlight-color: #FFEB3B;
+            --highlight-border: #FFD700;
+            --past-color: #F8F8F8;
+            --past-header-color: #E74C3C;
+            --break-time-color: #e4cb40; /* New variable for break time yellow */
+        }
+
+        /* --- Global & Layout --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('static/uploads/background.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            color: var(--secondary-color);
+            margin: 0;
+            padding: 1vw;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+            transition: background-image 1s ease-in-out;
+        }
+        
+        .main-content-wrapper {
+            background-color: var(--background-color);
+            border-radius: 20px;
+            padding: 1.5vw 2.5vw;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            min-height: 0;
+        }
+        
+        /* --- Header --- */
+        .tv-header {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1vw;
+            margin-bottom: 1.2vw;
+        }
+        .header-title-container {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .tv-header h1 {
+            font-size: 2.5vw;
+            font-weight: 800;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+            margin: 0.5vw 0;
+            animation: pulse 4s infinite alternate ease-in-out;
+        }
+        .tv-header .header-subtitle {
+            font-size: 1.2vw;
+            font-weight: 700;
+            margin: -0.5vw 0 0.5vw;
+        }
+        .tv-header .current-date-time {
+            font-size: 1.0vw;
+            font-weight: 600;
+            opacity: 0.85;
+            color: var(--secondary-color);
+        }
+        .logo {
+            height: 4vw;
+            max-height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+        .logo-left { margin-right: 2vw; }
+        .logo-right { margin-left: 2vw; }
+
+        /* --- Tabel Jadwal --- */
+        .schedule-container {
+            flex-grow: 1;
+            overflow: auto; /* Menggabungkan overflow-x dan y */
+            margin-bottom: 0.8vw;
+            min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #2193b0 #f0f0f0;
+        }
+        .schedule-container::-webkit-scrollbar { width: 8px; height: 8px; }
+        .schedule-container::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 10px; }
+        .schedule-container::-webkit-scrollbar-thumb { background-color: #2193b0; border-radius: 10px; border: 2px solid #f0f0f0; }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .schedule-table thead th {
+            background-color: var(--primary-color);
+            color: var(--booked-text-color);
+            font-size: 0.8vw;
+            font-weight: 700;
+            padding: 0.8vw 0.7vw;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            vertical-align: middle;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .schedule-table tbody td {
+            background-color: var(--past-color);
+            color: var(--secondary-color);
+            font-size: 0.9vw;
+            padding: 0.5vw 0.5vw;
+            border: 1px solid #E0E0E0;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            line-height: 1.2;
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        .schedule-table tbody tr:nth-child(even) td {
+             background-color: #F0F0F0;
+        }
+        .schedule-table tbody tr:nth-child(even) td:first-child,
+        .schedule-table tbody tr:nth-child(even) td:nth-child(2) {
+            background-color: #DADADA;
+        }
+
+        /* Sticky Columns */
+        .schedule-table thead th:first-child,
+        .schedule-table tbody td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background-color: var(--primary-color);
+            color: var(--booked-text-color);
+            width: 50px;
+            font-weight: bold;
+        }
+        .schedule-table tbody td:first-child {
+            background-color: #E6E6E6;
+            color: var(--primary-color);
+        }
+        
+        .schedule-table thead th:nth-child(2) {
+            position: sticky;
+            left: 50px;
+            z-index: 2;
+            width: 10vw;
+            min-width: 130px;
+            text-align: center; /* Centered "Ruangan" header */
+            padding-left: 0.7vw; /* Adjusted padding as it's now centered */
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: var(--booked-text-color);
+        }
+        
+        .schedule-table tbody td:nth-child(2) {
+            background-color: #E6E6E6;
+            color: var(--primary-color);
+            text-align: left; /* Keep the room names left-aligned for readability */
+            padding-left: 1.5vw; /* Maintain original padding for content */
+        }
+
+        /* --- Kelas Warna & Highlight --- */
+        .booked { background-color: var(--booked-color) !important; color: #000000 !important; font-weight: 700; }
+        .booked:hover { background-color: #FF5722 !important; transform: scale(1.01); box-shadow: 0 0 15px rgba(0,0,0,0.4); }
+        .available { background-color: var(--available-color) !important; color: var(--available-text-color) !important; font-weight: 500; }
+        .available:hover { background-color: #DCE775 !important; transform: scale(1.01); box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+        
+        /* New class for break time */
+        .break-time {
+            background-color: var(--break-time-color) !important;
+            color: var(--secondary-color) !important; /* Adjust text color for readability on yellow */
+            font-weight: 600;
+        }
+        .break-time:hover {
+            background-color: #FFC107 !important; /* Slightly darker yellow on hover */
+            transform: scale(1.01);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        /* Uncomment and use these if you want to re-enable them */
+        .booked-hc-legal { background-color: #42A5F5 !important; color: var(--booked-text-color) !important; }
+        .booked-hc-legal:hover { background-color: #2196F3 !important; }
+        .current-hour-highlight { animation: subtleHighlight 3s infinite alternate ease-in-out; transform: scale(1.01); z-index: 4; }
+        .schedule-table thead th.current-hour-highlight { border: 3px solid var(--highlight-border); color: var(--primary-color); background-color: var(--highlight-color); font-weight: 900; }
+        .schedule-table tbody td.current-hour-highlight { color: var(--secondary-color); }
+        .past-hour-highlight { background-color: #FFF0F0 !important; color: #A00000 !important; opacity: 0.7; }
+        .schedule-table thead th.past-hour-highlight { background-color: var(--past-header-color) !important; color: var(--booked-text-color) !important; border: 1px solid var(--past-header-color); }
+
+        /* --- Footer --- */
+        .tv-footer {
+            text-align: center;
+            margin-top: 0.8vw;
+            font-size: 1.0vw;
+            color: #555555;
+            font-weight: 500;
+        }
+
+        /* --- Slideshow --- */
+        .full-screen-slideshow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 5vw;
+        }
+        .hidden { display: none; }
+        .slide-frame {
+            max-width: 95%;
+            max-height: 95%;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            padding: 1.5vw;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 1.5s ease-out;
+        }
+        .slide-frame img {
+            width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .caption-display {
+            font-size: 1.5vw;
+            font-weight: 500;
+            color: #333;
+            margin-top: 1.5vw;
+            text-align: center;
+            line-height: 1.4;
+            max-width: 80%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1vw 2vw;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: slideInUp 0.8s ease-out forwards;
+        }
+
+        /* --- Animasi --- */
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.02); opacity: 0.9; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes subtleHighlight { 0% { background-color: var(--highlight-color); box-shadow: inset 0 0 0 3px var(--highlight-border); transform: scale(1); } 50% { background-color: #FFFACD; box-shadow: inset 0 0 0 4px #FFA500; transform: scale(1.02); } 100% { background-color: var(--highlight-color); box-shadow: inset 0 0 0 3px var(--highlight-border); transform: scale(1); } }
+        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInUp { 0% { opacity: 0; transform: translateY(50px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+        /* Media Queries */
+        @media (max-width: 1200px) {
+            body { padding: 0.6vw; }
+            .main-content-wrapper { padding: 1.2vw 2vw; }
+            .tv-header h1 { font-size: 2.2vw; }
+            .tv-header .header-subtitle { font-size: 2.5vw; margin: -0.4vw 0 0.6vw; }
+            .tv-header .current-date-time { font-size: 2.0vw; }
+            .logo { height: 5vw; max-height: 90px; }
+            .schedule-table thead th { font-size: 1.3vw; padding: 0.8vw 0.6vw; }
+            .schedule-table tbody td { font-size: 1.0vw; padding: 0.5vw 0.5vw; }
+            .schedule-table thead th:nth-child(2) { width: 11vw; padding-left: 1.8vw; }
+            .schedule-table tbody td:nth-child(2) { padding-left: 1.8vw; }
+            .tv-footer { margin-top: 0.6vw; font-size: 1.2vw; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 0.5vw; }
+            .main-content-wrapper { padding: 1vw 1.5vw; border-radius: 12px; }
+            .tv-header h1 { font-size: 5.5vw; }
+            .tv-header .header-subtitle { font-size: 3.5vw; margin: -0.3vw 0 0.7vw; }
+            .tv-header .current-date-time { font-size: 2.5vw; }
+            .logo { height: 6vw; max-height: 100px; }
+            .schedule-table thead th { font-size: 1.6vw; padding: 0.7vw 0.5vw; }
+            .schedule-table tbody td { font-size: 1.2vw; padding: 0.4vw 0.4vw; }
+            .schedule-table thead th:nth-child(2) { width: 14vw; padding-left: 2.2vw; }
+            .schedule-table tbody td:nth-child(2) { padding-left: 2.2vw; }
+            .tv-footer { margin-top: 0.6vw; font-size: 1.2vw; }
+        }
+    </style>
+</head>
+<body class="font-inter">
+    <div id="schedule-section" class="main-content-wrapper">
+        <div class="tv-header">
+            <img src="{{ url_for('static', filename='uploads/danantara-logo-black-v3.png') }}" onerror="this.onerror=null; this.src='https://placehold.co/200x50/333333/FFFFFF?text=Logo+Danatara';" alt="Danatara Logo" class="logo logo-left">
+            <div class="header-title-container">
+                <h1>JADWAL BOOKING RUANGAN RAPAT</h1>
+                <div class="header-subtitle">Region 7 Jakarta 2</div> 
+                <div id="realtime-clock" class="current-date-time"></div>
+            </div>
+            <img src="{{ url_for('static', filename='uploads/logo-bri.png') }}" onerror="this.onerror=null; this.src='https://placehold.co/200x50/333333/FFFFFF?text=Logo+BRI';" alt="BRI Logo" class="logo logo-right">
+        </div>
+
+        <div class="schedule-container" id="schedule-container">
+            <table class="schedule-table" id="main-schedule-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Ruangan</th>
+                        <th>Lantai</th>
+                        {# This part will be dynamically updated or re-rendered on full refresh #}
+                        {% for h in hours %}
+                        {% set is_current_hour = (current_hour is not none and h.start == current_hour) %}
+                        {% set is_past_hour = (current_hour is not none and h.start < current_hour) %}
+                        <th class="
+                            {% if is_current_hour %}current-hour-highlight{% endif %}
+                            {% if is_past_hour %}past-hour-highlight{% endif %}
+                            {% if h.start == 12 %}break-time{% endif %}
+                        ">
+                            {{ "%02d:00 - %02d:00"|format(h.start, h.end) }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+            <tbody>
+                {% for room_name, times in schedule.items() %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ room_name }}</td>
+                    <td>{{ room_floors[room_name] }}</td>
+                    {% for h in hours %}
+                        {% set booking = times.get(h.start) %}
+                        {% set is_current_slot = (current_hour is not none and h.start == current_hour) %}
+                        {% set is_past_hour_cell = (current_hour is not none and h.start < current_hour) %}
+                        <td class="
+                            {% if booking %} booked{% else %} available{% endif %}
+                            {% if booking in ['HC', 'LEGAL'] %} booked-hc-legal{% endif %}
+                            {% if is_current_slot %} current-hour-highlight{% endif %}
+                            {% if is_past_hour_cell %} past-hour-highlight{% endif %}
+                            {% if h.start == 12 %} break-time{% endif %}
+                        ">
+                            {% if booking %}{{ booking }}{% else %}-{% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+
+        <div class="tv-footer">
+            <span>Region 7 Jakarta 2 | Diperbarui Otomatis Setiap 4 Menit </span>
+        </div>
+    </div>
+
+    <div id="slideshow-section" class="full-screen-slideshow-container hidden">
+        <div id="slideshow" class="w-full h-full relative">
+        </div>
+    </div>
+
+    <script>
+        const SCHEDULE_DURATION = 60 * 1000;         
+        const SLIDE_DISPLAY_TIME = 10000;             
+        const REFRESH_INTERVAL_MS = 4 * 60 * 1000;   
+
+        let slideIndex = 0;
+        let slideshowIntervalId;
+        let imagesData = [];
+        let hasImages = false; 
+        let dynamicSlideshowDuration = 0;
+
+        let horizontalScrollDirection = 1;
+        let verticalScrollDirection = 1;
+        let isVerticalScrollingPaused = false;
+        const scrollPauseTime = 4000;
+        let horizontalScrollIntervalId;
+        let verticalScrollIntervalId;
+
+        function updateRealtimeClock() {
+            const now = new Date();
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const formattedDate = now.toLocaleDateString('id-ID', optionsDate);
+            const formattedTime = now.toLocaleTimeString('id-ID', optionsTime);
+            const clockElement = document.getElementById('realtime-clock');
+            if (clockElement) {
+                clockElement.textContent = `${formattedDate}, ${formattedTime} WIB`;
+            }
+        }
+        
+        async function fetchImagesAndCaptions() {
+            try {
+                const response = await fetch('/api/tv_images');
+                if (!response.ok) throw new Error('Gagal mengambil data gambar dari API.');
+                const data = await response.json();
+                imagesData = data.product_images;
+                hasImages = imagesData && imagesData.length > 0;
+                if (hasImages) {
+                    dynamicSlideshowDuration = imagesData.length * SLIDE_DISPLAY_TIME;
+                    if (imagesData.length === 1) {
+                        dynamicSlideshowDuration = SLIDE_DISPLAY_TIME; 
+                    }
+                } else {
+                    dynamicSlideshowDuration = 0;
+                }
+                console.log("Data gambar berhasil diambil:", imagesData, "Has Images:", hasImages, "Dynamic Slideshow Duration:", dynamicSlideshowDuration);
+            } catch (error) {
+                console.error("Kesalahan saat mengambil gambar:", error);
+                imagesData = [];
+                hasImages = false;
+                dynamicSlideshowDuration = 0;
+            }
+        }
+
+        function showNextSlide() {
+            const slideshowContainer = document.getElementById("slideshow");
+            slideshowContainer.innerHTML = '';
+            
+            if (!hasImages) {
+                slideshowContainer.innerHTML = `<div class="slide-frame text-center p-10 text-4xl font-semibold">Tidak ada gambar yang ditemukan.</div>`;
+                return;
+            }
+            
+            slideIndex = (slideIndex % imagesData.length);
+            const currentImage = imagesData[slideIndex];
+            slideIndex++;
+            
+            const imageUrl = `/static/uploads/${currentImage.filename}`;
+            const slideElement = document.createElement('div');
+            slideElement.className = 'slide w-full h-full absolute top-0 left-0 flex flex-col items-center justify-center';
+            
+            const frameContent = `
+                <div class="slide-frame">
+                    <img src="${imageUrl}" alt="Gambar Slideshow" onerror="this.src='https://placehold.co/1000x600/333333/FFFFFF?text=Gambar+Tidak+Ditemukan';">
+                    ${currentImage.caption ? `<div class="caption-display">${currentImage.caption}</div>` : ''}
+                </div>
+            `;
+            slideElement.innerHTML = frameContent;
+            slideshowContainer.appendChild(slideElement);
+        }
+
+        function startScrolling() {
+            const scheduleContainer = document.getElementById('schedule-container');
+            stopScrolling();
+
+            if (scheduleContainer.scrollWidth > scheduleContainer.clientWidth) {
+                horizontalScrollIntervalId = setInterval(() => {
+                    const scrollSpeed = 1;
+                    const maxScrollLeft = scheduleContainer.scrollWidth - scheduleContainer.clientWidth;
+                    scheduleContainer.scrollLeft += horizontalScrollDirection * scrollSpeed;
+                    
+                    if (scheduleContainer.scrollLeft >= maxScrollLeft && horizontalScrollDirection === 1) {
+                        horizontalScrollDirection = -1;
+                    } else if (scheduleContainer.scrollLeft <= 0 && horizontalScrollDirection === -1) {
+                        horizontalScrollDirection = 1;
+                    }
+                }, 20);
+            }
+            
+            if (scheduleContainer.scrollHeight > scheduleContainer.clientHeight) {
+                setTimeout(() => {
+                    verticalScrollIntervalId = setInterval(() => {
+                        if (isVerticalScrollingPaused) return;
+                        const scrollSpeed = 1;
+                        scheduleContainer.scrollTop += verticalScrollDirection * scrollSpeed;
+                        const atBottom = scheduleContainer.scrollTop + scheduleContainer.clientHeight >= scheduleContainer.scrollHeight - 1;
+                        const atTop = scheduleContainer.scrollTop <= 1;
+
+                        if ((verticalScrollDirection === 1 && atBottom) || (verticalScrollDirection === -1 && atTop)) {
+                            isVerticalScrollingPaused = true;
+                            setTimeout(() => {
+                                verticalScrollDirection *= -1;
+                                isVerticalScrollingPaused = false;
+                            }, scrollPauseTime);
+                        }
+                    }, 40);
+                }, 1000);
+            }
+        }
+
+        function stopScrolling() {
+            clearInterval(horizontalScrollIntervalId);
+            clearInterval(verticalScrollIntervalId);
+        }
+        
+        let displayTimer;
+        let currentDisplayMode = 'schedule';
+
+        function alternateDisplay() {
+            const scheduleSection = document.getElementById('schedule-section');
+            const slideshowSection = document.getElementById('slideshow-section');
+
+            clearTimeout(displayTimer);
+
+            if (currentDisplayMode === 'schedule') {
+                scheduleSection.classList.remove('hidden');
+                slideshowSection.classList.add('hidden');
+                stopScrolling();
+                startScrolling();
+                console.log("Menampilkan Jadwal. Durasi: " + SCHEDULE_DURATION / 1000 + " detik.");
+                displayTimer = setTimeout(() => {
+                    currentDisplayMode = 'slideshow';
+                    alternateDisplay();
+                }, SCHEDULE_DURATION);
+            } else { // currentDisplayMode === 'slideshow'
+                if (hasImages && dynamicSlideshowDuration > 0) {
+                    scheduleSection.classList.add('hidden');
+                    slideshowSection.classList.remove('hidden');
+                    clearInterval(slideshowIntervalId);
+                    showNextSlide();
+                    slideshowIntervalId = setInterval(showNextSlide, SLIDE_DISPLAY_TIME);
+                    console.log(`Menampilkan Slideshow. Durasi: ${dynamicSlideshowDuration / 1000} detik.`);
+                    displayTimer = setTimeout(() => {
+                        currentDisplayMode = 'schedule';
+                        alternateDisplay();
+                    }, dynamicSlideshowDuration);
+                } else {
+                    scheduleSection.classList.remove('hidden');
+                    slideshowSection.classList.add('hidden');
+                    clearInterval(slideshowIntervalId);
+                    stopScrolling();
+                    startScrolling();
+                    currentDisplayMode = 'schedule';
+                    console.log("Tidak ada gambar. Tetap di Jadwal. Durasi: " + SCHEDULE_DURATION / 1000 + " detik.");
+                    displayTimer = setTimeout(alternateDisplay, SCHEDULE_DURATION);
+                }
+            }
+        }
+
+        // --- NEW FUNCTION: Fetch and update schedule data ---
+        async function fetchAndUpdateSchedule() {
+            try {
+                // Fetch the schedule data from your Flask backend
+                // This assumes your Flask route for the main page (or a new API route)
+                // provides the necessary `schedule`, `hours`, `room_floors`, and `current_hour` data.
+                // For a full page refresh, you can just reload the page.
+                // For a partial refresh (more efficient), you'd need an API that returns JSON.
+                
+                // Option 1: Full page reload (simpler to implement with Jinja2)
+                window.location.reload(); 
+
+                // Option 2: Fetch JSON and dynamically update the table (requires a new Flask API endpoint)
+                /*
+                const response = await fetch('/api/schedule_data'); // Create this endpoint in Flask
+                if (!response.ok) throw new Error('Failed to fetch schedule data.');
+                const data = await response.json(); // Data should contain: { schedule, hours, room_floors, current_hour }
+
+                const tableBody = document.querySelector('#main-schedule-table tbody');
+                const tableHead = document.querySelector('#main-schedule-table thead tr');
+
+                // Clear existing table body
+                tableBody.innerHTML = '';
+                
+                // Clear and rebuild header if hours can change (less common for fixed schedule display)
+                // For simplicity, assuming hours are mostly static and only tbody needs update.
+                // If hours/columns can change, you'd need to re-render the whole table.
+
+                // Populate table body with new data
+                let rowNum = 1;
+                for (const roomName in data.schedule) {
+                    const row = document.createElement('tr');
+                    let currentRoomFloor = data.room_floors[roomName] || '-'; // Fallback for floor
+                    
+                    row.innerHTML += `<td>${rowNum++}</td>`;
+                    row.innerHTML += `<td>${roomName}</td>`;
+                    row.innerHTML += `<td>${currentRoomFloor}</td>`;
+
+                    for (const hour of data.hours) {
+                        const booking = data.schedule[roomName][hour.start];
+                        const isCurrentSlot = (hour.start === data.current_hour);
+                        const isPastHourCell = (hour.start < data.current_hour);
+                        const isBreakTime = (hour.start === 12); // Assuming 12 is lunch break
+
+                        let classList = '';
+                        if (booking) {
+                            classList += 'booked';
+                        } else {
+                            classList += 'available';
+                        }
+                        if (booking && (booking === 'HC' || booking === 'LEGAL')) {
+                            classList += ' booked-hc-legal';
+                        }
+                        if (isCurrentSlot) {
+                            classList += ' current-hour-highlight';
+                        }
+                        if (isPastHourCell) {
+                            classList += ' past-hour-highlight';
+                        }
+                        if (isBreakTime) {
+                            classList += ' break-time';
+                        }
+
+                        row.innerHTML += `<td class="${classList.trim()}">${booking ? booking : '-'}</td>`;
+                    }
+                    tableBody.appendChild(row);
+                }
+
+                // Reapply classes for HC/LEGAL (if you're not doing a full rebuild)
+                document.querySelectorAll('.schedule-table tbody td.booked').forEach(function(td) {
+                    const text = td.textContent.trim();
+                    if (text === 'HC' || text === 'LEGAL') {
+                        td.classList.add('booked-hc-legal');
+                    }
+                });
+                */
+
+            } catch (error) {
+                console.error("Error fetching or updating schedule:", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRealtimeClock();
+            setInterval(updateRealtimeClock, 1000);
+            
+            // Initial application of classes (if not doing a full rebuild)
+            document.querySelectorAll('.schedule-table tbody td.booked').forEach(function(td) {
+                const text = td.textContent.trim();
+                if (text === 'HC' || text === 'LEGAL') {
+                    td.classList.add('booked-hc-legal');
+                }
+            });
+            
+            fetchImagesAndCaptions().then(() => {
+                document.getElementById('schedule-section').classList.remove('hidden');
+                document.getElementById('slideshow-section').classList.add('hidden');
+                startScrolling();
+                alternateDisplay(); 
+
+                // Interval to refresh images and schedule.
+                // This interval now triggers the full page refresh.
+                setInterval(() => {
+                    fetchImagesAndCaptions(); 
+                    fetchAndUpdateSchedule(); 
+           
+                }, REFRESH_INTERVAL_MS); 
+            });
+        });
+    </script>
+    
+</body>
+</html>

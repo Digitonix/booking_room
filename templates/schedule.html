@@ -1,0 +1,567 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule Booking Room</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Gaya dasar untuk seluruh body halaman */
+        body {
+            background-color: #F8F9FA;
+            font-family: 'Inter', sans-serif;
+            color: #343a40;
+        }
+
+        /* Override gaya Tailwind untuk memastikan konsistensi */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* Padding untuk kontainer utama agar konten tidak terlalu menempel di tepi */
+        .container-fluid {
+            padding: 20px;
+        }
+
+        /* Gaya umum untuk semua elemen dengan kelas .page-title */
+        .page-title {
+            text-align: center;
+            color: #1A365D;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0;
+        }
+
+        /* Override/Spesifikasi gaya untuk h1 dengan kelas .page-title (Judul Utama) */
+        h1.page-title {
+            font-size: 2.8rem;
+        }
+
+        /* Override/Spesifikasi gaya untuk h3 dengan kelas .page-title (Sub-Judul) */
+        h3.page-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #1A365D;
+            margin-top: 0.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Gaya untuk tampilan waktu realtime */
+        .realtime-clock {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #1A365D; /* Warna teks oranye untuk jam */
+            font-weight: 700;
+        }
+
+        /* Gaya untuk area header yang berisi date picker dan tombol */
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        /* Gaya untuk grup tombol aksi di pojok kanan atas */
+        .action-buttons-top {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        @media (max-width: 768px) {
+            .action-buttons-top {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
+            }
+        }
+
+        /* Gaya untuk grup tombol yang berisi form tanggal */
+        .date-form-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Kustomisasi tombol utama (biru) */
+        .btn-primary {
+            background-color: #336699;
+            border-color: #336699;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #25496D;
+            border-color: #25496D;
+        }
+
+        /* Kustomisasi tombol sukses (hijau) */
+        .btn-success {
+            background-color: #28A745;
+            border-color: #28A745;
+            transition: background-color 0.3s ease;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+
+        /* Kustomisasi tombol sekunder (abu-abu) */
+        .btn-secondary {
+            background-color: #6C757D;
+            border-color: #6C757D;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #5A6268;
+            border-color: #5A6268;
+            color: #FFFFFF;
+        }
+
+        /* Gaya umum untuk tabel */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #FFFFFF;
+            margin-top: 20px;
+        }
+
+        /* Kustomisasi HEADER TABEL (THEAD) */
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #1A365D; /* Warna biru gelap untuk latar belakang header jam */
+            z-index: 2;
+            color: #FFFFFF;
+            font-weight: 600;
+            border-bottom: 2px solid #2B4E7D;
+            padding: 12px 8px;
+            text-align: center; /* Pastikan semua header rata tengah kecuali di override */
+        }
+
+        /* Gaya umum untuk sel data tabel */
+        .schedule-table td {
+            text-align: center; /* Default rata tengah untuk sel data */
+            vertical-align: middle;
+            white-space: nowrap;
+            border: 1px solid #EAECEE;
+            padding: 10px 8px;
+        }
+        
+        /* Override untuk sel pertama (Ruangan) agar rata kiri */
+        .schedule-table td:first-child {
+            background-color: #FDFEFE;
+            font-weight: bold;
+            text-align: left !important; /* Paksa rata kiri */
+            padding-left: 15px;
+            color: #34495E;
+        }
+
+        /* Gaya untuk sel yang dibooking (terisi) */
+        .booked {
+            background-color: #77aafc !important; /* Biru terang */
+            font-weight: 600;
+            color: #000000 !important; /* Hitam */
+            cursor: pointer; /* Tambahkan ini untuk menandakan bisa diklik */
+        }
+
+        /* Gaya untuk sel yang tersedia (kosong) */
+        .available {
+            background-color: #D4EFDF !important; /* Hijau muda */
+            color: #27AE60 !important; /* Hijau tua */
+        }
+
+        /* Highlight untuk jam 12:00 - 13:00 */
+        .highlight-hour {
+            background-color: #e4cb40 !important; /* Kuning muda sesuai permintaan */
+            font-weight: bold;
+            color: #000000 !important; /* Font hitam untuk highlight jam */
+        }
+
+        /* Kontainer untuk tabel agar bisa di-scroll secara horizontal */
+        .scrollable-table {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #EAECEE;
+        }
+
+        /* Gaya saat baris tabel di-hover */
+        .schedule-table tbody tr:hover {
+            background-color: #F2F4F6;
+        }
+
+        /* Gaya untuk input tanggal pada form */
+        .form-control {
+            border-radius: .25rem;
+            border: 1px solid #D7DBDD;
+        }
+
+        /* Gaya khusus untuk modal */
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .modal-body p {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Animasi Pop-up */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- Gaya Baru untuk Tampilan Mobile (Kartu) --- */
+        /* Mengatur tampilan card responsif */
+        .room-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .room-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #E0E0E0;
+            padding-bottom: 8px;
+        }
+
+        .room-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1A365D;
+        }
+
+        .booking-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .booking-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #EAECEE;
+        }
+
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+
+        .booked-time {
+            color: #000000;
+            font-weight: 600;
+            background-color: #77aafc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .booked-time:hover {
+            background-color: #5588cc;
+        }
+
+        .available-time {
+            color: #27AE60;
+            background-color: #D4EFDF;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="action-buttons-top flex flex-wrap gap-2 mb-4 items-center justify-start">
+    
+            {% if session['role'] in ['admin', 'requester'] %}
+            <a href="{{ url_for('export_schedule', date=selected_date.strftime('%Y-%m-%d')) }}"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                    <path d="M10 9H8"/>
+                    <path d="M16 13H8"/>
+                    <path d="M16 17H8"/>
+                </svg>
+                Export Excel
+            </a>
+            {% endif %}
+    
+            <a href="{{ url_for('home') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-300 text-gray-800 hover:bg-gray-400 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 19-7-7 7-7"/>
+                    <path d="M19 12H5"/>
+                </svg>
+                Kembali
+            </a>
+    
+        </div>
+    </div>
+
+    <h1 class="page-title">Jadwal Booking Ruang Rapat</h1>
+    <h3 class="page-title">Region 7 Jakarta 2</h3>
+
+    <div id="realtime-clock" class="realtime-clock"></div>
+
+    <div class="schedule-header">
+        <div class="date-form-group">
+            <form method="get" class="d-flex">
+                <input type="date" name="date" class="form-control me-2"
+                        value="{{ selected_date.strftime('%Y-%m-%d') }}">
+                <button type="submit" class="btn btn-primary">Tampilkan</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Deskripsi untuk petunjuk -->
+    <p class="text-left text-muted mb-4">
+          Klik pada slot jam yang terisi untuk melihat detail booking.
+    </p>
+
+    <!--
+        Bagian Tampilan Desktop
+        Menggunakan kelas `d-none d-md-block` untuk menyembunyikan elemen ini di perangkat seluler
+        dan menampilkannya di perangkat dengan ukuran layar medium atau lebih besar.
+    -->
+    <div class="scrollable-table d-none d-md-block">
+        <table class="table table-bordered table-hover schedule-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th class="text-center">Ruangan</th>
+                    <th>Lantai</th>
+                    {% for h in hours %}
+                        <th class="{% if h == 12 %}highlight-hour{% endif %}">{{ "%02d:00 - %02d:00"|format(h, h+1) }}</th>
+                    {% endfor %}
+                    
+                </tr>
+            </thead>
+            <tbody>
+            {% for room, room_schedule in schedule.items() %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td class="text-start"><strong>{{ room }}</strong></td>
+                    <td>{{ room_floors[room] }}</td>
+                    {% for h in hours %}
+                        {% set is_highlighted = (h == 12) %}
+                        {% if room_schedule[h] %}
+                            <td class="booked {% if is_highlighted %}highlight-hour{% endif %}"
+                                title="Klik untuk melihat detail booking"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bookingDetailModal"
+                                data-room-name="{{ booking_details[room][h].room.name }}"
+                                data-booking-title="{{ booking_details[room][h].title }}"
+                                data-booking-organizer="{{ booking_details[room][h].user }}" {# Pastikan data ini tersedia dari backend #}
+                                data-booking-description="{{ booking_details[room][h].description }}"
+                                data-booking-department="{{ booking_details[room][h].department }}"
+                                data-booking-start-time="{{ booking_details[room][h].start_time.strftime('%Y-%m-%d %H:%M:%S') }}"
+                                data-booking-end-time="{{ booking_details[room][h].end_time.strftime('%Y-%m-%d %H:%M:%S') }}">
+                                {{ room_schedule[h] }}
+                            </td>
+                        {% else %}
+                            <td class="available {% if is_highlighted %}highlight-hour{% endif %}">-</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!--
+        Bagian Tampilan Mobile
+        Menggunakan kelas `d-md-none` untuk menyembunyikan elemen ini di perangkat
+        dengan ukuran layar medium atau lebih besar dan menampilkannya di perangkat seluler.
+    -->
+    <div class="d-md-none px-4">
+        {% for room, room_schedule in schedule.items() %}
+        <div class="room-card">
+            <div class="room-card-header">
+                <h4 class="room-card-title">{{ room }}</h4>
+                <span class="text-sm font-semibold text-gray-500">Lantai: {{ room_floors[room] }}</span>
+            </div>
+            <ul class="booking-list">
+                {% for h in hours %}
+                    {% set start_time = "%02d:00"|format(h) %}
+                    {% set end_time = "%02d:00"|format(h+1) %}
+                    <li class="booking-item">
+                        <span class="text-sm font-medium text-gray-700">Jam {{ start_time }} - {{ end_time }}</span>
+                        {% if room_schedule[h] %}
+                            <span class="booked-time text-xs"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bookingDetailModal"
+                                data-room-name="{{ booking_details[room][h].room.name }}"
+                                data-booking-title="{{ booking_details[room][h].title }}"
+                                data-booking-organizer="{{ booking_details[room][h].user }}"
+                                data-booking-description="{{ booking_details[room][h].description }}"
+                                data-booking-department="{{ booking_details[room][h].department }}"
+                                data-booking-start-time="{{ booking_details[room][h].start_time.strftime('%Y-%m-%d %H:%M:%S') }}"
+                                data-booking-end-time="{{ booking_details[room][h].end_time.strftime('%Y-%m-%d %H:%M:%S') }}">
+                                {{ room_schedule[h] }}
+                            </span>
+                        {% else %}
+                            <span class="available-time text-xs">
+                                Tersedia
+                            </span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+
+</div>
+
+<div class="modal fade" id="bookingDetailModal" tabindex="-1" aria-labelledby="bookingDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-semibold text-lg text-blue-900 flex items-center gap-2" id="bookingDetailModalLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+                    Detail Booking
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-6">
+                <div class="space-y-4">
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin text-blue-500"><path d="M12 17.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M12 2a8.5 8.5 0 0 1 8.5 8.5c0 5.4-8.5 12.5-8.5 12.5s-8.5-7.1-8.5-12.5A8.5 8.5 0 0 1 12 2Z"/></svg>
+                        <strong>Ruangan:</strong> <span id="modal-room"></span>
+                    </p>
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock text-blue-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <strong>Waktu:</strong> <span id="modal-time"></span>
+                    </p>
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user text-blue-500"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <strong>Pengaju:</strong> <span id="modal-organizer"></span>
+                    </p>
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-align-left text-blue-500"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>
+                        <strong>Deskripsi:</strong> <span id="modal-description"></span>
+                    </p>
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building text-blue-500"><path d="M2 21h20"/><path d="M6 19h12"/><path d="M10 19V5a2 2 0 0 1 4 0v14"/></svg>
+                        <strong>Departemen:</strong> <span id="modal-department"></span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer flex justify-end gap-2 p-4">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Fungsi untuk memperbarui jam realtime
+    function updateRealtimeClock() {
+        const now = new Date();
+        const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const formattedDate = now.toLocaleDateString('id-ID', optionsDate);
+        const formattedTime = now.toLocaleTimeString('id-ID', optionsTime);
+        const clockElement = document.getElementById('realtime-clock');
+        if (clockElement) {
+            clockElement.textContent = `${formattedDate}, ${formattedTime} WIB`;
+        }
+    }
+
+    // Panggil fungsi sekali saat memuat dan kemudian setiap detik
+    updateRealtimeClock();
+    setInterval(updateRealtimeClock, 1000);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const bookingDetailModal = document.getElementById('bookingDetailModal');
+        if (bookingDetailModal) {
+            bookingDetailModal.addEventListener('show.bs.modal', function (event) {
+                try {
+                    const button = event.relatedTarget;
+                    
+                    // Ambil elemen di dalam modal
+                    const modalRoom = bookingDetailModal.querySelector('#modal-room');
+                    const modalTime = bookingDetailModal.querySelector('#modal-time');
+                    const modalOrganizer = bookingDetailModal.querySelector('#modal-organizer'); // Elemen baru untuk organizer
+                    const modalDescription = bookingDetailModal.querySelector('#modal-description');
+                    const modalDepartment = bookingDetailModal.querySelector('#modal-department');
+                    
+                    // Ambil data dari atribut `data-*`
+                    const roomName = button.getAttribute('data-room-name');
+                    const bookingOrganizer = button.getAttribute('data-booking-organizer'); // Ambil data organizer
+                    const bookingDescription = button.getAttribute('data-booking-description');
+                    const bookingDepartment = button.getAttribute('data-booking-department');
+                    const startTimeStr = button.getAttribute('data-booking-start-time');
+                    const endTimeStr = button.getAttribute('data-booking-end-time');
+
+                    // Isi elemen modal dengan data
+                    modalRoom.textContent = roomName || '-';
+                    modalOrganizer.textContent = bookingOrganizer || '-'; // Isi data organizer
+                    modalDescription.textContent = bookingDescription || '-';
+                    modalDepartment.textContent = bookingDepartment || '-';
+                    
+                    // Format waktu
+                    const startDate = new Date(startTimeStr);
+                    const endDate = new Date(endTimeStr);
+                    const startHour = String(startDate.getHours()).padStart(2, '0');
+                    const endHour = String(endDate.getHours()).padStart(2, '0');
+                    modalTime.textContent = `${startHour}:00 - ${endHour}:00`;
+
+                } catch (e) {
+                    console.error("Gagal membaca data booking:", e);
+                    // Isi modal dengan pesan error
+                    const modalTitle = bookingDetailModal.querySelector('.modal-title');
+                    const modalBody = bookingDetailModal.querySelector('.modal-body');
+
+                    if (modalTitle) modalTitle.textContent = 'Terjadi Kesalahan';
+                    if (modalBody) modalBody.innerHTML = '<p>Detail booking tidak dapat ditampilkan.</p>';
+                }
+            });
+        }
+        // Panggil lucide.createIcons() untuk me-render ikon setelah DOM dimuat
+        lucide.createIcons();
+    });
+</script>
+
+</body>
+</html>

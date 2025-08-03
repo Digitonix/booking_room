@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Management Image{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="mb-3 mb-md-0 fw-bold text-primary">Manajemen Gambar</h2>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('upload_image') }}" class="btn btn-primary d-flex align-items-center shadow-sm">
+                <i class="bi bi-upload me-2"></i> Unggah Baru
+            </a>
+            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary d-flex align-items-center">
+                <i class="bi bi-house-door me-2"></i> Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if images %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for img in images %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='uploads/' ~ img.filename) }}" class="card-img-top object-fit-cover" alt="{{ img.caption }}" style="height: 200px;">
+                    <span class="badge rounded-pill bg-{{ 'success' if img.is_active else 'secondary' }} position-absolute top-0 start-0 m-2">
+                        {{ 'Aktif' if img.is_active else 'Tidak Aktif' }}
+                    </span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title fw-bold text-truncate">{{ img.caption }}</h5>
+                <p class="card-text text-muted small mt-auto">
+                    Diunggah pada: {{ img.upload_wib.strftime('%Y-%m-%d %H:%M') }}
+                </p>
+                </div>
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between p-3 pt-0">
+                    <a href="{{ url_for('edit_image', image_id=img.id) }}" class="btn btn-warning btn-sm flex-grow-1 me-2 shadow-sm">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <form method="POST" action="{{ url_for('delete_image', image_id=img.id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus gambar ini? Tindakan ini tidak bisa dibatalkan.')">
+                        <button type="submit" class="btn btn-danger btn-sm shadow-sm">
+                            <i class="bi bi-trash"></i> Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center p-5 border rounded-3 bg-light">
+        <h3 class="text-muted mb-3">Belum ada gambar yang diunggah.</h3>
+        <p class="lead">Mulai dengan mengunggah gambar pertama Anda untuk menampilkannya di sini.</p>
+        <a href="{{ url_for('upload_image') }}" class="btn btn-primary btn-lg mt-3 shadow-sm">
+            <i class="bi bi-cloud-arrow-up me-2"></i> Unggah Gambar Sekarang
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

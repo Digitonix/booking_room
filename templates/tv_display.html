@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Ruangan</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles: Mengadaptasi gaya asli dan menambahkan sentuhan modern */
+        body {
+            /* Latar belakang: Gunakan gambar dari Flask atau placeholder */
+            background: url("{{ url_for('static', filename='uploads/background.jpg') if room else 'https://placehold.co/1920x1080/1a202c/e2e8f0?text=Jadwal+Ruangan' }}") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', Arial, sans-serif; /* Menggunakan font Inter */
+            font-size: 1.3rem;
+            display: flex;
+            flex-direction: column; /* Konten bertumpuk vertikal */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Memastikan mengambil tinggi viewport penuh */
+            height: 100vh; /* Set tinggi eksplisit ke 100vh */
+            margin: 0;
+            overflow: hidden; /* Mencegah scrollbar selama transisi */
+            color: #333; /* Warna teks default */
+        }
+
+        .container-fluid {
+            background-color: rgba(255, 255, 255, 0.98); /* Sedikit lebih solid */
+            border-radius: 20px; /* Sudut lebih membulat */
+            padding: 2.5rem; /* Padding lebih besar */
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Bayangan lebih dalam */
+            width: 90%; /* Sedikit lebih sempit agar ada ruang di tepi */
+            max-width: 1500px; /* Lebar maksimum yang lebih besar */
+            height: 92vh; /* Mengambil lebih banyak ruang vertikal */
+            display: flex; /* Menggunakan flexbox untuk tata letak internal */
+            flex-direction: column; /* Anak-anak bertumpuk vertikal */
+            justify-content: space-between; /* Mendistribusikan ruang antara header, info, dan tabel */
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out; /* Transisi halus untuk perubahan konten */
+            animation: fadeInContainer 1s ease forwards; /* Animasi fade in awal */
+            border: 1px solid rgba(0, 0, 0, 0.05); /* Border halus */
+        }
+
+        /* --- Custom styles for other components (left untouched) --- */
+        /* Responsive Table & Card Layout */
+        .table-responsive {
+            flex-grow: 1;
+            overflow-y: auto;
+            border-radius: 12px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
+            -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+        }
+
+        /* Table styles for larger screens */
+        .table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        @media (max-width: 767px) {
+            .table-responsive {
+                overflow: visible; /* Remove scroll for cards */
+                height: auto;
+            }
+            .table {
+                display: none; /* Hide the table on mobile */
+            }
+            .container-fluid {
+                padding: 1rem; /* Padding lebih kecil untuk mobile */
+            }
+            /* Menyesuaikan ukuran font untuk tanggal dan waktu agar lebih sesuai di mobile */
+            .current-day {
+                font-size: 0.9rem; /* Ukuran font lebih kecil untuk mobile */
+                margin-bottom: 0.5rem;
+            }
+            #display-date {
+                font-size: 0.9rem;
+            }
+            #current-time {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Custom styles for mobile card view */
+        .mobile-card-container {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 1rem; /* Jarak antar kartu lebih kecil di mobile */
+            padding-bottom: 1rem;
+        }
+
+        @media (max-width: 767px) {
+            .mobile-card-container {
+                display: block; /* Show card view on mobile */
+                height: 80vh; /* Set a fixed height for scrolling */
+                overflow-y: auto; /* Make the container scrollable vertically */
+                padding-right: 0.5rem; /* Add some padding to avoid scrollbar overlapping content */
+            }
+        }
+
+        .booking-card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .booking-card .card-label {
+            font-size: 0.8rem; /* Font label lebih kecil */
+        }
+
+        .booking-card .card-value {
+            font-size: 0.9rem; /* Font value lebih kecil */
+        }
+
+        /* Highlight card that is "On Going" */
+        .booking-card.waktu-sedang {
+            box-shadow: 0 0 15px rgba(13, 71, 161, 0.5);
+            border: 2px solid #0d47a1;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .booking-card .card-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .booking-card .card-item:last-child {
+            border-bottom: none;
+        }
+
+        .booking-card .card-label {
+            font-weight: 600;
+            color: #555;
+            flex-basis: 30%;
+        }
+
+        .booking-card .card-value {
+            text-align: right;
+            flex-basis: 70%;
+        }
+
+        .booking-card .status-badge {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            /* font-weight: bold; */
+        }
+
+        /* --- existing styles for rows and status badges --- */
+        .table thead th {
+            background-color: #4285f4; /* Google Blue */
+            color: white;
+            font-size: 1.4rem; /* Ukuran font header tabel lebih besar */
+            text-align: center;
+            padding: 1.2rem 0.8rem; /* Padding lebih besar */
+            position: sticky; /* Membuat header lengket */
+            top: 0; /* Menempel di bagian atas area scrollable */
+            z-index: 10; /* Memastikan header di atas konten yang discroll */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Bayangan halus di bawah header */
+        }
+        /* Sudut membulat untuk header tabel */
+        .table thead tr:first-child th:first-child { border-top-left-radius: 12px; }
+        .table thead tr:first-child th:last-child { border-top-right-radius: 12px; }
+
+        .table td, .table th {
+            vertical-align: middle;
+            font-size: 1rem; /* Ukuran font sel tabel disesuaikan menjadi lebih kecil */
+            padding: 1rem 0.8rem; /* Padding lebih besar */
+            border-bottom: 1px solid #e0e0e0; /* Garis pemisah antar baris */
+        }
+        .table tbody tr:last-child td {
+            border-bottom: none; /* Hapus border bawah untuk baris terakhir */
+        }
+
+        /* Gaya baris bergantian untuk keterbacaan */
+        .table tbody tr:nth-child(even) {
+            background-color: #f5f5f5; 
+        }
+        .table tbody tr:nth-child(odd) {
+            background-color: #ffffff; 
+        }
+
+        .current-day {
+            font-size: 1.2rem; 
+            color: #555;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Penegasan font untuk tanggal */
+        #display-date {
+            font-weight: 650; 
+            font-size: 1.2rem; 
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2); 
+            color: #1a73e8; 
+        }
+
+        /* Penegasan font untuk jam */
+        #current-time {
+            font-weight: 500; /* Bold */
+            font-size: 1.2rem; /* Ukuran font disesuaikan menjadi lebih kecil */
+            color: #4285f4; /* Biru yang sedikit lebih terang */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Bayangan halus */
+        }
+
+        /* Transisi halus untuk perubahan latar belakang dan transformasi */
+        .booking-row {
+            transition: background 0.3s ease, transform 0.3s ease; 
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        /* Efek hover (meskipun untuk TV, bisa jadi sentuhan detail) */
+        .booking-row:hover {
+            background-color: #e8f0fe !important;
+            transform: scale(1.01); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        }
+
+        /* Gaya untuk slot kosong */
+        .slot-kosong td, .slot-kosong {
+            background-color: #fcfcfc !important;
+            color: #888;
+            /* font-style: italic; */
+        }
+
+        /* Gaya untuk waktu yang sudah lewat */
+        .waktu-lewat td, .waktu-lewat {
+            background-color: #fce4ec !important; 
+            color: #c2185b !important; 
+            font-weight: bold;
+            opacity: 0.7; 
+        }
+
+        /* .waktu-lewat .status-badge {
+            background-color: #c2185b;
+            color: white;
+        } */
+
+        /* Gaya untuk waktu yang sedang berlangsung */
+        .waktu-sedang td, .waktu-sedang {
+            background-color: #e3f2fd !important; /* Biru muda */
+            color: #0d47a1 !important; /* Biru gelap */
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(13, 71, 161, 0.3); /* Bayangan biru untuk menonjolkan */
+            animation: pulse 1.5s infinite alternate; /* Animasi denyut */
+        }
+        .waktu-sedang .status-badge {
+            background-color: #0d47a1;
+            color: white;
+        }
+
+        /* Gaya untuk waktu yang akan datang */
+        .waktu-akan td, .waktu-akan {
+            background-color: #e8f5e9 !important; /* Hijau muda */
+            color: #2e7d32 !important; /* Hijau gelap */
+            font-weight: bold;
+            /* font-style: italic; */
+        }
+
+        .waktu-akan .status-badge {
+            background-color: #2e7d32;
+            color: white;
+        }
+
+        .waktu-akan.slot-kosong {
+            background-color: #f0fff4 !important;
+            color: #166534 !important;
+        }
+        .waktu-akan.slot-kosong .status-badge {
+            background-color: #166534;
+            color: white;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInContainer {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Animasi denyut untuk status "On Going" dengan fade */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px rgba(13, 71, 161, 0.3);
+                opacity: 0.8; /* Mulai dengan sedikit transparan */
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(13, 71, 161, 0.6);
+                opacity: 1; /* Pudar ke opasitas penuh */
+            }
+        }
+
+        /* Animasi untuk perubahan konten */
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="tv-display-container" class="container-fluid py-4">
+        <div class="flex items-center justify-between flex-wrap gap-4 px-2 pb-4 md:px-6 md:pb-6 border-b border-gray-200">
+
+            
+
+            <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-4">
+
+                <img src="{{ url_for('static', filename='uploads/danantara-logo-black-v3.png') if room else 'https://placehold.co/60x60/ffffff/000000?text=Logo+Danantara' }}" 
+                    alt="Logo Danantara" 
+                    class="h-10 md:h-16 w-auto" 
+                    onerror="this.onerror=null;this.src='https://placehold.co/60x60/ffffff/000000?text=Logo+Danantara';">
+
+                <h1 class="text-xl md:text-3xl lg:text-4xl font-extrabold text-blue-600 drop-shadow-md text-center">
+                    Jadwal Ruangan <span id="room-name">{{ room.name if room else 'Memuat...' }}</span>
+                </h1>
+
+                <img src="{{ url_for('static', filename='uploads/logo-bri.png') if room else 'https://placehold.co/60x60/ffffff/000000?text=Logo+BRI' }}" 
+                    alt="Logo BRI" 
+                    class="h-10 md:h-16 w-auto" 
+                    onerror="this.onerror=null;this.src='https://placehold.co/60x60/ffffff/000000?text=Logo+BRI';">
+            </div>
+        </div>
+
+        <p class="current-day">
+            Menampilkan jadwal untuk: <strong id="display-date">{{ selected_date|format_date_id if selected_date else 'Memuat...' }}</strong><br>
+            Jam saat ini: <strong id="current-time"></strong>
+        </p>
+
+
+        <div class="table-responsive md:block hidden">
+            <table class="table table-bordered table-sm shadow-sm bg-white text-center rounded-lg overflow-hidden">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Pemakai</th>
+                        <th class="px-4 py-2">Divisi</th>
+                        <th class="px-4 py-2">Uraian</th>
+                        <th class="px-4 py-2">Mulai</th>
+                        <th class="px-4 py-2">Selesai</th>
+                        <th class="px-4 py-2">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body-desktop">
+                    <!-- Initial bookings from Flask context (if available) -->
+                    {% if bookings %}
+                        {% for booking in bookings %}
+                            {# Menentukan apakah slot kosong. #}
+                            {% set slot_kosong = booking.user.strip() == '' %}
+                            {% set waktu_lewat = booking.end_time <= now_time %}
+                            {% set waktu_sedang = booking.start_time <= now_time < booking.end_time %}
+                            {% set waktu_mendatang = booking.start_time > now_time %}
+                            
+                            {% set css_classes_list = ['booking-row'] %}
+                            {# Prioritaskan status waktu #}
+                            {% if waktu_lewat %}
+                                {% set css_classes_list = css_classes_list + ['waktu-lewat'] %}
+                            {% elif waktu_sedang %}
+                                {% set css_classes_list = css_classes_list + ['waktu-sedang'] %}
+                            {% elif waktu_mendatang %}
+                                {% set css_classes_list = css_classes_list + ['waktu-akan'] %}
+                            {% endif %}
+                            {# Tambahkan kelas slot-kosong jika memang slot kosong #}
+                            {% if slot_kosong %}
+                                {% set css_classes_list = css_classes_list + ['slot-kosong'] %}
+                            {% endif %}
+
+                            <tr class="{{ css_classes_list|join(' ') }}"
+                                data-start-time="{{ booking.start_time.strftime('%H:%M') }}"
+                                data-end-time="{{ booking.end_time.strftime('%H:%M') }}"
+                                data-is-empty="{{ 'true' if slot_kosong else 'false' }}"
+                                data-booking-date="{{ selected_date.strftime('%Y-%m-%d') }}">
+                                <td class="text-center">{{ booking.user if booking.user else '--- Available ---' }}</td>
+                                <td>{{ booking.department }}</td>
+                                <td>{{ booking.description if booking.description else '-' }}</td>
+                                <td class="whitespace-nowrap">{{ booking.start_time.strftime('%H:%M') }}</td>
+                                <td class="whitespace-nowrap">{{ booking.end_time.strftime('%H:%M') }}</td>
+                                <td class="status-cell">
+                                    {# Logika badge status untuk initial render #}
+                                    {% if waktu_lewat %}
+                                        <span class="badge bg-gray-400 text-white px-2 py-1 rounded-full">⏱ Sudah Lewat</span>
+                                    {% elif waktu_sedang %}
+                                        <span class="badge bg-blue-500 text-white px-2 py-1 rounded-full">🔵 On Going</span>
+                                    {% elif waktu_mendatang %}
+                                        {% if slot_kosong %}
+                                            <span class="badge bg-green-100 text-green-800 px-2 py-1 rounded-full">🟢 Jam Kosong</span>
+                                        {% else %}
+                                            <span class="badge bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">⏳ Belum Dimulai</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if slot_kosong %}
+                                            <span class="badge bg-green-100 text-green-800 px-2 py-1 rounded-full">🟢 Jam Kosong</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-gray-500 py-4">Tidak ada jadwal hari ini (Data dari Flask tidak tersedia)</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Container untuk Tampilan Mobile (Kartu) -->
+        <div id="schedule-body-mobile" class="mobile-card-container md:hidden">
+            <!-- Isi kartu akan di-render oleh JavaScript -->
+            {% if bookings %}
+                {% for booking in bookings %}
+                    {# Menentukan apakah slot kosong. #}
+                    {% set slot_kosong = booking.user.strip() == '' %}
+                    {% set waktu_lewat = booking.end_time <= now_time %}
+                    {% set waktu_sedang = booking.start_time <= now_time < booking.end_time %}
+                    {% set waktu_mendatang = booking.start_time > now_time %}
+                    
+                    {% set card_classes_list = ['booking-card'] %}
+                    {% if waktu_lewat %}
+                        {% set card_classes_list = card_classes_list + ['waktu-lewat'] %}
+                    {% elif waktu_sedang %}
+                        {% set card_classes_list = card_classes_list + ['waktu-sedang'] %}
+                    {% elif waktu_mendatang %}
+                        {% set card_classes_list = card_classes_list + ['waktu-akan'] %}
+                    {% endif %}
+                    {% if slot_kosong %}
+                        {% set card_classes_list = card_classes_list + ['slot-kosong'] %}
+                    {% endif %}
+                    
+                    <div class="{{ card_classes_list|join(' ') }}">
+                        <div class="card-item">
+                            <span class="card-label">Pemakai</span>
+                            <span class="card-value font-bold text-sm">{{ booking.user if booking.user else '--- Available ---' }}</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-label">Divisi</span>
+                            <span class="card-value text-sm">{{ booking.department }}</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-label">Uraian</span>
+                            <span class="card-value text-sm">{{ booking.description if booking.description else '-' }}</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-label">Waktu</span>
+                            <span class="card-value whitespace-nowrap text-sm">{{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-label">Status</span>
+                            <span class="card-value status-cell">
+                                {% if waktu_lewat %}
+                                    <span class="status-badge bg-gray-400 text-white">⏱ Sudah Lewat</span>
+                                {% elif waktu_sedang %}
+                                    <span class="status-badge bg-blue-500 text-white">🔵 On Going</span>
+                                {% elif waktu_mendatang %}
+                                    {% if slot_kosong %}
+                                        <span class="status-badge bg-green-100 text-green-800">🟢 Jam Kosong</span>
+                                    {% else %}
+                                        <span class="status-badge bg-yellow-100 text-yellow-800">⏳ Belum Dimulai</span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if slot_kosong %}
+                                        <span class="status-badge bg-green-100 text-green-800">🟢 Jam Kosong</span>
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-4 text-center text-gray-500">Tidak ada jadwal hari ini (Data dari Flask tidak tersedia)</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // ID Ruangan yang diambil dari konteks Flask.
+        const roomIdRaw = "{{ room.id if room is defined and room else '' }}";
+        const roomId = roomIdRaw === "" ? null : parseInt(roomIdRaw);
+
+        //variabel untuk perulangan tampilan jadwal
+        const totalDaysToDisplay = 7; 
+        let dayIndexInLoop = 0; 
+        const displayInterval = 14000; 
+        const realtimeStatusUpdateInterval = 5000; 
+        let currentlyDisplayedDateGlobal = new Date();
+
+        // Fungsi untuk memformat objek Date ke format tanggal Indonesia.
+        function formatTanggalID(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+   
+        function updateClock() {
+            const now = new Date();
+            const currentTimeElement = document.getElementById('current-time');
+            currentTimeElement.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+        }
+        
+  
+        function getStatusClasses(booking, selectedDate, now) {
+            const bookingDate = new Date(selectedDate);
+            const bookingStartTime = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate(), parseInt(booking.start_time.split(':')[0]), parseInt(booking.start_time.split(':')[1]));
+            const bookingEndTime = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate(), parseInt(booking.end_time.split(':')[0]), parseInt(booking.end_time.split(':')[1]));
+
+            const waktuLewat = bookingEndTime < now;
+            const waktuSedang = bookingStartTime <= now && now < bookingEndTime && selectedDate.toDateString() === now.toDateString();
+            const waktuMendatang = bookingStartTime > now;
+            const slotKosong = booking.user.trim() === '';
+
+            let classes = [];
+            if (waktuLewat) { classes.push('waktu-lewat'); }
+            else if (waktuSedang) { classes.push('waktu-sedang'); }
+            else if (waktuMendatang) { classes.push('waktu-akan'); }
+            if (slotKosong) { classes.push('slot-kosong'); }
+
+            return classes;
+        }
+
+
+        function getStatusBadge(classes) {
+            if (classes.includes('waktu-lewat')) { return '<span class="status-badge bg-gray-400 text-white">⏱ Sudah Lewat</span>'; }
+            if (classes.includes('waktu-sedang')) { return '<span class="status-badge bg-blue-500 text-white">🔵 On Going</span>'; }
+            if (classes.includes('waktu-akan') && classes.includes('slot-kosong')) { return '<span class="status-badge bg-green-100 text-green-800">🟢 Jam Kosong</span>'; }
+            if (classes.includes('waktu-akan')) { return '<span class="status-badge bg-yellow-100 text-yellow-800">⏳ Belum Dimulai</span>'; }
+            if (classes.includes('slot-kosong')) { return '<span class="status-badge bg-green-100 text-green-800">🟢 Jam Kosong</span>'; }
+            return '';
+        }
+
+        // Fungsi utama untuk merender jadwal berdasarkan tanggal yang diberikan.
+        async function renderSchedule(dateToDisplay) {
+            if (roomId === null) {
+                console.error("ID Ruangan tidak tersedia. Pastikan Anda mengakses /tv/<room_id> dengan ID ruangan yang valid.");
+                document.getElementById('schedule-body-desktop').innerHTML = `<tr><td colspan="6" class="text-center text-red-500 py-4">ID Ruangan tidak tersedia.</td></tr>`;
+                document.getElementById('schedule-body-mobile').innerHTML = `<div class="p-4 text-center text-red-500">ID Ruangan tidak tersedia.</div>`;
+                return;
+            }
+
+            const dateStr = dateToDisplay.toISOString().split('T')[0]; 
+            const apiUrl = `/api/tv_schedule/${roomId}/${dateStr}`;
+
+            console.log(`[RENDER] Mengambil jadwal untuk tanggal: ${dateStr} dari API: ${apiUrl}`);
+
+            const tvDisplayContainer = document.getElementById('tv-display-container');
+            const displayDateElement = document.getElementById('display-date');
+            
+            // Tambahkan animasi fade-out sebelum memuat konten baru
+            tvDisplayContainer.classList.remove('fade-in');
+            tvDisplayContainer.classList.add('fade-out');
+
+            // Tunggu sebentar agar animasi selesai sebelum memuat konten
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Gagal mengambil jadwal: ${response.status} ${response.statusText}. Detail: ${errorText}`);
+                    }
+                    const data = await response.json();
+                    console.log(`[RENDER] Data jadwal diterima untuk ${dateStr}:`, data);
+
+                    displayDateElement.textContent = formatTanggalID(new Date(data.selected_date));
+                    document.getElementById('room-name').textContent = data.room_name;
+                    currentlyDisplayedDateGlobal = new Date(data.selected_date);
+
+                    // Hapus konten lama
+                    const scheduleBodyDesktop = document.getElementById('schedule-body-desktop');
+                    const scheduleBodyMobile = document.getElementById('schedule-body-mobile');
+                    scheduleBodyDesktop.innerHTML = '';
+                    scheduleBodyMobile.innerHTML = '';
+
+                    const bookings = data.bookings;
+                    if (bookings && bookings.length > 0) {
+                        const now = new Date();
+                        bookings.forEach((booking, index) => {
+                            const statusClasses = getStatusClasses(booking, currentlyDisplayedDateGlobal, now);
+                            const statusBadge = getStatusBadge(statusClasses);
+                            
+                            // Render untuk Desktop (Tabel)
+                            const row = document.createElement('tr');
+                            row.classList.add('booking-row', ...statusClasses);
+                            row.dataset.startTime = booking.start_time;
+                            row.dataset.endTime = booking.end_time;
+                            row.dataset.isEmpty = booking.user.trim() === '' ? 'true' : 'false';
+                            row.dataset.bookingDate = currentlyDisplayedDateGlobal.toISOString().split('T')[0];
+                            row.innerHTML = `
+                                <td class="text-center">${booking.user || ''}</td> 
+                                <td>${booking.department || '-'}</td>
+                                <td>${booking.description || '-'}</td>
+                                <td class="whitespace-nowrap">${booking.start_time}</td>
+                                <td class="whitespace-nowrap">${booking.end_time}</td>
+                                <td class="status-cell">${statusBadge}</td>
+                            `;
+                            scheduleBodyDesktop.appendChild(row);
+
+                            // Render untuk Mobile (Kartu)
+                            const card = document.createElement('div');
+                            card.classList.add('booking-card', ...statusClasses);
+                            card.innerHTML = `
+                                <div class="card-item">
+                                    <span class="card-label">Pemakai</span>
+                                    <span class="card-value font-bold text-sm">${booking.user || '--- Available ---'}</span>
+                                </div>
+                                <div class="card-item">
+                                    <span class="card-label">Divisi</span>
+                                    <span class="card-value text-sm">${booking.department || '-'}</span>
+                                </div>
+                                <div class="card-item">
+                                    <span class="card-label">Uraian</span>
+                                    <span class="card-value text-sm">${booking.description || '-'}</span>
+                                </div>
+                                <div class="card-item">
+                                    <span class="card-label">Waktu</span>
+                                    <span class="card-value whitespace-nowrap text-sm">${booking.start_time} - ${booking.end_time}</span>
+                                </div>
+                                <div class="card-item">
+                                    <span class="card-label">Status</span>
+                                    <span class="card-value status-cell">
+                                        ${statusBadge}
+                                    </span>
+                                </div>
+                            `;
+                            scheduleBodyMobile.appendChild(card);
+                        });
+                    } else {
+                        const noScheduleHtml = `<tr><td colspan="6" class="text-center text-gray-500 py-4">Tidak ada jadwal hari ini.</td></tr>`;
+                        const noScheduleCardHtml = `<div class="p-4 text-center text-gray-500">Tidak ada jadwal hari ini.</div>`;
+                        scheduleBodyDesktop.innerHTML = noScheduleHtml;
+                        scheduleBodyMobile.innerHTML = noScheduleCardHtml;
+                    }
+
+                    // Tambahkan animasi fade-in setelah konten dimuat
+                    tvDisplayContainer.classList.remove('fade-out');
+                    tvDisplayContainer.classList.add('fade-in');
+
+                } catch (error) {
+                    console.error("[RENDER ERROR] Terjadi kesalahan saat mengambil data:", error);
+                    const errorHtml = `<tr><td colspan="6" class="text-center text-red-500 py-4">Terjadi kesalahan saat memuat data.</td></tr>`;
+                    const errorCardHtml = `<div class="p-4 text-center text-red-500">Terjadi kesalahan saat memuat data.</div>`;
+                    document.getElementById('schedule-body-desktop').innerHTML = errorHtml;
+                    document.getElementById('schedule-body-mobile').innerHTML = errorCardHtml;
+
+                    tvDisplayContainer.classList.remove('fade-out');
+                    tvDisplayContainer.classList.add('fade-in');
+                }
+            }, 800); // Durasi transisi fade-out
+
+        }
+
+        // Fungsi untuk memperbarui status On Going secara real-time
+        function updateRealtimeStatus() {
+            const now = new Date();
+            const displayedDate = currentlyDisplayedDateGlobal.toDateString();
+            const today = new Date().toDateString();
+
+            if (displayedDate !== today) {
+                // Jangan perbarui status jika tanggal yang ditampilkan bukan hari ini
+                return;
+            }
+
+            // Perbarui status untuk tabel desktop
+            const rows = document.querySelectorAll('#schedule-body-desktop .booking-row');
+            rows.forEach(row => {
+                const startTimeStr = row.dataset.startTime;
+                const endTimeStr = row.dataset.endTime;
+                const isEmpty = row.dataset.isEmpty === 'true';
+
+                if (isEmpty) return; // Abaikan slot kosong
+
+                const [startHour, startMinute] = startTimeStr.split(':').map(Number);
+                const [endHour, endMinute] = endTimeStr.split(':').map(Number);
+                
+                const bookingStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMinute, 0);
+                const bookingEndTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMinute, 0);
+
+                const isOngoing = now >= bookingStartTime && now < bookingEndTime;
+
+                if (isOngoing) {
+                    row.classList.add('waktu-sedang');
+                    row.classList.remove('waktu-akan', 'waktu-lewat');
+                    row.querySelector('.status-cell').innerHTML = `<span class="badge bg-blue-500 text-white px-2 py-1 rounded-full">🔵 On Going</span>`;
+                } else if (now >= bookingEndTime) {
+                    row.classList.add('waktu-lewat');
+                    row.classList.remove('waktu-sedang', 'waktu-akan');
+                    row.querySelector('.status-cell').innerHTML = `<span class="badge bg-gray-400 text-white px-2 py-1 rounded-full">⏱ Sudah Lewat</span>`;
+                }
+            });
+
+            // Perbarui status untuk kartu mobile
+            const cards = document.querySelectorAll('#schedule-body-mobile .booking-card');
+            cards.forEach(card => {
+                const cardItem = card.querySelector('.card-item:nth-of-type(4)');
+                const timeValue = cardItem.querySelector('.card-value').textContent;
+                const timeRange = timeValue.split(' - ').map(t => t.trim());
+                const [startTimeStr, endTimeStr] = timeRange;
+                const isEmpty = card.classList.contains('slot-kosong');
+
+                if (isEmpty) return; // Abaikan slot kosong
+
+                const [startHour, startMinute] = startTimeStr.split(':').map(Number);
+                const [endHour, endMinute] = endTimeStr.split(':').map(Number);
+
+                const bookingStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMinute, 0);
+                const bookingEndTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMinute, 0);
+                
+                const isOngoing = now >= bookingStartTime && now < bookingEndTime;
+
+                if (isOngoing) {
+                    card.classList.add('waktu-sedang');
+                    card.classList.remove('waktu-akan', 'waktu-lewat');
+                    card.querySelector('.status-badge').innerHTML = `<span class="status-badge bg-blue-500 text-white">🔵 On Going</span>`;
+                } else if (now >= bookingEndTime) {
+                    card.classList.add('waktu-lewat');
+                    card.classList.remove('waktu-sedang', 'waktu-akan');
+                    card.querySelector('.status-badge').innerHTML = `<span class="status-badge bg-gray-400 text-white">⏱ Sudah Lewat</span>`;
+                }
+            });
+        }
+
+        // Fungsi untuk mengganti hari yang ditampilkan dalam perulangan
+        function switchDayInLoop() {
+            dayIndexInLoop = (dayIndexInLoop + 1) % totalDaysToDisplay;
+            const newDate = new Date();
+            newDate.setDate(newDate.getDate() + dayIndexInLoop);
+            renderSchedule(newDate);
+        }
+
+        // Inisialisasi: jalankan saat halaman dimuat
+        window.onload = function() {
+            console.log("Halaman dimuat. Memulai interval...");
+            
+            // Tampilkan jadwal untuk hari ini saat pertama kali
+            renderSchedule(new Date()); 
+            // Mulai loop untuk mengganti hari
+            setInterval(switchDayInLoop, displayInterval); 
+            // Mulai update jam setiap detik
+            setInterval(updateClock, 1000); 
+            // Mulai update status realtime (hanya untuk hari ini)
+            setInterval(updateRealtimeStatus, realtimeStatusUpdateInterval); 
+            
+            // Memastikan jam tampil saat pertama kali
+            updateClock();
+        };
+
+    </script>
+</body>
+</html>

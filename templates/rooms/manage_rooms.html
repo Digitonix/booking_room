@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Ruangan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2g+j0lQyS7Xg9tA5/z4z6wG/k5fL5q5Lz5P5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<div class="container mx-auto px-4 py-8 md:py-12">
+    <div class="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-10 lg:p-12">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <h2 class="text-indigo-600 font-bold text-3xl md:text-4xl mb-4 md:mb-0">
+                <i class="fas fa-tools mr-3"></i>Kelola Ruangan
+            </h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="{{ url_for('home') }}" class="py-2 px-6 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 transition-colors duration-300 flex items-center justify-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali
+                </a>
+                <a href="{{ url_for('add_room') }}" class="py-2 px-6 bg-indigo-500 text-white font-semibold rounded-full hover:bg-indigo-600 transition-colors duration-300 flex items-center justify-center">
+                    <i class="fas fa-plus mr-2"></i>Tambah Ruangan
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for room in rooms %}
+            <div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-indigo-500 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-door-open text-indigo-500 mr-2"></i>
+                        {{ room.name }}
+                    </h3>
+                    <span class="text-sm font-medium text-gray-600 bg-gray-100 rounded-full px-3 py-1">
+                        ID: {{ room.id }}
+                    </span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-gray-600 flex items-center">
+                        <i class="fas fa-building text-gray-400 mr-2"></i>
+                        <span class="font-medium">Lantai:</span> {{ room.lantai or 'Tidak Ditentukan' }}
+                    </p>
+                </div>
+                <div class="border-t border-gray-200 pt-4 flex justify-end gap-2">
+                    <a href="{{ url_for('update_room', room_id=room.id) }}" class="inline-flex items-center px-4 py-2 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors duration-200" title="Edit Ruangan">
+                        <i class="fas fa-edit mr-2"></i> Edit
+                    </a>
+                    <form action="{{ url_for('delete_room', room_id=room.id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ruangan ini?');">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-200" title="Hapus Ruangan">
+                            <i class="fas fa-trash-alt mr-2"></i> Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            {% if not rooms %}
+            <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center text-gray-500 py-10">
+                <p>
+                    <i class="fas fa-inbox fa-3x mb-4 text-gray-300"></i>
+                </p>
+                <p class="text-lg font-medium">Tidak ada ruangan yang tersedia.</p>
+                <a href="{{ url_for('add_room') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-plus mr-2"></i> Tambah Ruangan Baru
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
