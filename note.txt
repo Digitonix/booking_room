@@ -14,7 +14,7 @@ fixing langsung
 *kill dulu gunicorn , baru jalankan python app.py di mesin dan run prod
 
  - pkill gunicorn
- - python app.py
+ - python3 app.py
 
  - nohup gunicorn app:app --bind 127.0.0.1:5000 &
 
@@ -27,4 +27,13 @@ step deploy
  - chmod +x deploy.sh
  - bash deploy.sh
 
+
+git 
+
+git remote add origin https://github.com/username/nama-repo.git
+
+
+git add .
+git commit -m "Update project"
+git push -u origin main
 

@@ -119,9 +119,11 @@ def home():
         flash('Sesi Anda telah berakhir, silakan login kembali.', 'warning')
         return redirect(url_for('login'))
     
-    rooms = Room.query.all()
-    return render_template('dashboard.html', rooms=rooms)
-
+    page = request.args.get('page', 1, type=int)
+    per_page = 6 
+    
+    rooms_pagination = Room.query.order_by(Room.name).paginate(page=page, per_page=per_page, error_out=False)
+    return render_template('dashboard.html', rooms_pagination=rooms_pagination)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -497,41 +499,47 @@ def schedule_view():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
+
+    local_now = datetime.utcnow() + timedelta(hours=7)
+
+ 
     today_param = request.args.get('date')
     if today_param:
         try:
             selected_date = datetime.strptime(today_param, '%Y-%m-%d').date()
         except ValueError:
-            selected_date = datetime.today().date()
+            selected_date = local_now.date()
     else:
-        selected_date = datetime.today().date()
+        selected_date = local_now.date()
 
     start_hour = 7
     end_hour = 17
-    now = datetime.utcnow() + timedelta(hours=7)  # ✅ Waktu lokal WIB
+    now = local_now  # Gunakan waktu lokal untuk realtime clock
     current_hour = now.hour if now.date() == selected_date else None
     hours = list(range(start_hour, end_hour + 1))
 
+    # Ambil semua ruangan dan booking pada tanggal terpilih
     rooms = Room.query.all()
     bookings = Booking.query.filter(
         db.func.date(Booking.start_time) == selected_date
     ).all()
 
-    schedule = {}             # [room_name][hour] = department
-    booking_details = {}      # [room_name][hour] = booking object
-    room_floors = {}          # [room_name] = lantai
+
+    schedule = {}             
+    booking_details = {}      
+    room_floors = {}          
 
     for room in rooms:
         room_schedule = {h: None for h in hours}
         room_detail = {h: None for h in hours}
-        room_floors[room.name] = room.lantai  # <-- FIXED: define sebelum digunakan
+        room_floors[room.name] = room.lantai
 
         room_bookings = [b for b in bookings if b.room_id == room.id]
         for booking in room_bookings:
             start_hour_bk = booking.start_time.hour
             end_hour_bk = booking.end_time.hour
 
-            # Perpanjang 1 jam jika ada menit/detik (biar tidak kepotong)
+            # Tambahkan 1 jam jika ada menit atau detik
             if booking.end_time.minute > 0 or booking.end_time.second > 0:
                 end_hour_bk += 1
 
@@ -551,7 +559,7 @@ def schedule_view():
         room_floors=room_floors,
         booking_details=booking_details,
         current_hour=current_hour,
-        current_time=now,  # ✅ Tambahkan ini
+        current_time=now,
         rooms=rooms
     )
 

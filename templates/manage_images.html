@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Management Gambar</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
-    <!-- Google Font "Inter" -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,27 +24,28 @@
         }
     </style>
 </head>
-<body>
+<body class="text-gray-800">
 
-<!-- Kontainer utama -->
 <div class="container mx-auto p-4 md:p-8 lg:p-12 min-h-screen bg-white/70 backdrop-blur-md rounded-3xl shadow-xl">
 
-    <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b border-gray-200">
-        <h2 class="text-indigo-600 font-bold text-3xl md:text-4xl mb-4 md:mb-0 flex items-center">
-            <i class="fas fa-image mr-3 text-indigo-500"></i>Management Gambar
-        </h2>
-        <div class="flex flex-wrap gap-3">
-            <a href="{{ url_for('upload_image') }}" class="py-2 px-5 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:-translate-y-1 text-sm flex items-center justify-center">
+        <div class="flex-grow">
+            <h2 class="text-indigo-600 font-bold text-3xl md:text-4xl mb-2 flex items-center">
+                <i class="fas fa-image mr-3 text-indigo-500"></i>Management Gambar
+            </h2>
+            <div id="live-time" class="text-sm font-medium text-gray-600">
+                </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+            <a href="{{ url_for('upload_image') }}" class="py-2 px-5 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:-translate-y-1 text-sm flex items-center justify-center w-full sm:w-auto">
                 <i class="fas fa-cloud-upload-alt mr-2"></i> Unggah Baru
             </a>
-            <a href="{{ url_for('home') }}" class="py-2 px-5 bg-gray-100 text-gray-700 font-semibold rounded-full shadow-md hover:bg-gray-200 transition-all duration-300 transform hover:-translate-y-1 text-sm flex items-center justify-center">
+            <a href="{{ url_for('home') }}" class="py-2 px-5 bg-gray-100 text-gray-700 font-semibold rounded-full shadow-md hover:bg-gray-200 transition-all duration-300 transform hover:-translate-y-1 text-sm flex items-center justify-center w-full sm:w-auto">
                 <i class="fas fa-home mr-2"></i> Kembali ke Dashboard
             </a>
         </div>
     </div>
 
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div id="flash-container" class="space-y-4 mb-6">
@@ -75,20 +73,18 @@
             </div>
 
             <script>
-                // Hilangkan pesan flash otomatis dalam 5 detik dengan animasi fade
                 setTimeout(() => {
                     const flashMessages = document.querySelectorAll('.flash-message');
                     flashMessages.forEach(msg => {
                         msg.classList.remove('opacity-100');
                         msg.classList.add('opacity-0');
-                        setTimeout(() => msg.remove(), 1000); // tunggu transisi selesai
+                        setTimeout(() => msg.remove(), 1000);
                     });
                 }, 5000);
             </script>
         {% endif %}
     {% endwith %}
 
-    <!-- Images Grid -->
     {% if images %}
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
         {% for img in images %}
@@ -106,13 +102,13 @@
                     Diunggah: <br> {{ img.upload_wib.strftime('%Y-%m-%d %H:%M') }}
                 </p>
             </div>
-            <div class="p-4 pt-0 flex justify-end gap-2">
-                <a href="{{ url_for('edit_image', image_id=img.id) }}" class="flex-grow-1 px-4 py-2 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors duration-200 text-sm shadow-md flex items-center justify-center" title="Edit Gambar">
-                    <i class="fas fa-edit mr-2"></i> Edit
+            <div class="p-4 pt-0 flex flex-col sm:flex-row justify-end gap-2">
+                <a href="{{ url_for('edit_image', image_id=img.id) }}" class="w-full sm:w-auto px-4 py-2 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors duration-200 text-sm shadow-md flex items-center justify-center" title="Edit Gambar">
+                    <i class="fas fa-edit sm:mr-2"></i> <span class="sm:inline-block hidden">Edit</span>
                 </a>
-                <form method="POST" action="{{ url_for('delete_image', image_id=img.id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus gambar ini? Tindakan ini tidak bisa dibatalkan.')">
-                    <button type="submit" class="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm shadow-md flex items-center justify-center" title="Hapus Gambar">
-                        <i class="fas fa-trash-alt mr-2"></i> Hapus
+                <form method="POST" action="{{ url_for('delete_image', image_id=img.id) }}" class="w-full sm:w-auto" onsubmit="return confirm('Apakah Anda yakin ingin menghapus gambar ini? Tindakan ini tidak bisa dibatalkan.')">
+                    <button type="submit" class="w-full sm:w-auto px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm shadow-md flex items-center justify-center" title="Hapus Gambar">
+                        <i class="fas fa-trash-alt sm:mr-2"></i> <span class="sm:inline-block hidden">Hapus</span>
                     </button>
                 </form>
             </div>
@@ -120,7 +116,6 @@
         {% endfor %}
     </div>
 
-    <!-- Jika tidak ada gambar -->
     {% else %}
     <div class="text-center p-10 md:p-20 border-2 border-dashed border-gray-300 rounded-3xl bg-white flex flex-col items-center justify-center">
         <i class="fas fa-inbox fa-5x mb-6 text-gray-300"></i>
@@ -132,6 +127,35 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+    // // Fungsi untuk menampilkan jam dengan zona waktu +7
+    // function updateTime() {
+    //     const now = new Date();
+        
+    //     // Atur offset waktu untuk Waktu Indonesia Barat (WIB), yang adalah UTC+7
+    //     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    //     const wibTime = new Date(utc + (3600000 * 7));
+
+    //     const options = {
+    //         weekday: 'long',
+    //         year: 'numeric',
+    //         month: 'long',
+    //         day: 'numeric',
+    //         hour: '2-digit',
+    //         minute: '2-digit',
+    //         second: '2-digit'
+    //     };
+
+    //     const timeString = wibTime.toLocaleDateString('id-ID', options);
+    //     document.getElementById('live-time').innerText = 'Waktu: ' + timeString + ' WIB';
+    // }
+
+    // // Perbarui waktu setiap detik
+    // setInterval(updateTime, 1000);
+    // // Panggil fungsi segera saat halaman dimuat
+    // updateTime();
+</script>
 
 </body>
 </html>
