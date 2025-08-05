@@ -10185,3 +10185,27 @@ SyntaxError: invalid syntax. Perhaps you forgot a comma?
 [2025-08-04 17:20:42 +0000] [93647] [INFO] Listening at: http://127.0.0.1:5000 (93647)
 [2025-08-04 17:20:42 +0000] [93647] [INFO] Using worker: sync
 [2025-08-04 17:20:42 +0000] [93649] [INFO] Booting worker with pid: 93649
+[2025-08-04 17:22:17 +0000] [93647] [INFO] Handling signal: hup
+[2025-08-04 17:22:17 +0000] [93647] [INFO] Hang up: Master
+[2025-08-04 17:22:17 +0000] [93647] [ERROR] Worker (pid:93649) was sent SIGHUP!
+[2025-08-04 17:22:17 +0000] [94268] [INFO] Booting worker with pid: 94268
+[2025-08-04 17:29:52 +0000] [93647] [INFO] Handling signal: term
+[2025-08-04 17:29:52 +0000] [94268] [INFO] Worker exiting (pid: 94268)
+[2025-08-04 17:29:52 +0000] [93647] [ERROR] Worker (pid:94268) was sent SIGTERM!
+[2025-08-04 17:29:52 +0000] [93647] [INFO] Shutting down: Master
+[2025-08-04 17:47:36 +0000] [96984] [INFO] Starting gunicorn 23.0.0
+[2025-08-04 17:47:36 +0000] [96984] [INFO] Listening at: http://127.0.0.1:5000 (96984)
+[2025-08-04 17:47:36 +0000] [96984] [INFO] Using worker: sync
+[2025-08-04 17:47:36 +0000] [96986] [INFO] Booting worker with pid: 96986
+[2025-08-04 17:53:23 +0000] [96984] [INFO] Handling signal: term
+[2025-08-04 17:53:23 +0000] [96986] [INFO] Worker exiting (pid: 96986)
+[2025-08-04 17:53:23 +0000] [96984] [ERROR] Worker (pid:96986) was sent SIGTERM!
+[2025-08-04 17:53:23 +0000] [96984] [INFO] Shutting down: Master
+[2025-08-04 18:00:30 +0000] [98515] [INFO] Starting gunicorn 23.0.0
+[2025-08-04 18:00:30 +0000] [98515] [INFO] Listening at: http://127.0.0.1:5000 (98515)
+[2025-08-04 18:00:30 +0000] [98515] [INFO] Using worker: sync
+[2025-08-04 18:00:30 +0000] [98518] [INFO] Booting worker with pid: 98518
+[2025-08-04 18:00:33 +0000] [98515] [INFO] Handling signal: hup
+[2025-08-04 18:00:33 +0000] [98515] [INFO] Hang up: Master
+[2025-08-04 18:00:34 +0000] [98515] [ERROR] Worker (pid:98518) was sent SIGHUP!
+[2025-08-04 18:00:34 +0000] [98561] [INFO] Booting worker with pid: 98561

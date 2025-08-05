@@ -392,8 +392,8 @@ def my_bookings():
 
     username = session['username']
     role = session['role']
-    now = datetime.now()
-    today = now.date()
+    now = datetime.utcnow() + timedelta(hours=7)
+    today = (datetime.utcnow() + timedelta(hours=7)).date()
 
     filter_date_str = request.args.get('filter_date')
     filter_date = None
@@ -420,12 +420,7 @@ def my_bookings():
             if start_date == today and b.end_time > now:
                 filtered_bookings.append(b)
 
-    return render_template(
-        'my_bookings.html',
-        bookings=filtered_bookings,
-        now=now,
-        today=today
-    )
+    return render_template('my_bookings.html', bookings=filtered_bookings, today=today, now=now)
 
 
 
@@ -565,18 +560,23 @@ def schedule_view():
 
 
 
+def to_utc_from_wib(dt):
+    return dt - timedelta(hours=7)
+
+def now_wib():
+    return datetime.utcnow() + timedelta(hours=7)
+
 @app.route('/tv-schedule')
 def tv_schedule():
-    # Ambil parameter tanggal (optional)
+    # get param utc to wib
     today_param = request.args.get('date')
     if today_param:
         try:
             selected_date = datetime.strptime(today_param, '%Y-%m-%d').date()
         except ValueError:
-            selected_date = datetime.today().date()
+            selected_date = (datetime.utcnow() + timedelta(hours=7)).date()
     else:
-        selected_date = datetime.today().date()
-
+        selected_date = (datetime.utcnow() + timedelta(hours=7)).date()
     # config
     start_hour = 7
     end_hour = 17
@@ -584,9 +584,7 @@ def tv_schedule():
     now = datetime.utcnow() + timedelta(hours=7)
     current_hour = now.hour if now.date() == selected_date else None
 
-
     rooms = Room.query.all()
-
 
     bookings = Booking.query.filter(
         db.func.date(Booking.start_time) == selected_date
