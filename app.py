@@ -72,6 +72,13 @@ class Booking(db.Model):
 
     room = db.relationship('Room', backref='bookings')
 
+class TvImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(120), nullable=False)
+    caption = db.Column(db.String(255))
+    is_active = db.Column(db.Boolean, default=True) 
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 def get_schedule_with_empty_slots(bookings, start_day, end_day):
     schedule = []
@@ -109,7 +116,7 @@ def get_schedule_with_empty_slots(bookings, start_day, end_day):
     return schedule
 
 
-# ROUTES
+# ROUTES home
 @app.route('/')
 def home():
     if 'user_id' not in session:
@@ -126,6 +133,7 @@ def home():
     return render_template('dashboard.html', rooms_pagination=rooms_pagination)
 
 
+#------------------Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -171,12 +179,15 @@ def login():
 #     flash('Anda telah logout.', 'info')
 #     return redirect(url_for('login'))
 
+#------logout
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     if request.method == 'POST' or request.method == 'GET':
         session.clear()
         return redirect(url_for('login'))
+    
 
+#-----Booking
 @app.route('/book', methods=['GET', 'POST'])
 def book():
     if 'user_id' not in session:
@@ -232,6 +243,7 @@ def book():
 
 @app.route('/rooms')
 def manage_rooms():
+    
     if 'role' not in session or session['role'] == 'user':
         flash("Anda tidak punya akses!", "danger")
         return redirect(url_for('home'))
@@ -241,6 +253,11 @@ def manage_rooms():
 
 @app.route('/rooms/add', methods=['GET', 'POST'])
 def add_room():
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+    
     if request.method == 'POST':
         name = request.form['name']
         lantai = request.form['lantai']
@@ -253,6 +270,11 @@ def add_room():
 
 @app.route('/rooms/update/<int:room_id>', methods=['GET', 'POST'])
 def update_room(room_id):
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+
     room = Room.query.get_or_404(room_id)
     if request.method == 'POST':
         room.name = request.form['name']
@@ -264,6 +286,11 @@ def update_room(room_id):
 
 @app.route('/rooms/delete/<int:room_id>', methods=['POST'])
 def delete_room(room_id):
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+    
     room = Room.query.get_or_404(room_id)
     db.session.delete(room)
     db.session.commit()
@@ -271,11 +298,12 @@ def delete_room(room_id):
     return redirect(url_for('manage_rooms'))
 
 
-# This is the correct route for the tv_display.html template
+#---------jadwal
 @app.route('/tv/<int:room_id>')
 def tv_display(room_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
+    if 'role' not in session or session['role'] == 'admin''user':
+        flash("Anda perlu login!", "danger")
+        return redirect(url_for('home'))
 
     room = Room.query.get_or_404(room_id)
     selected_date_str = request.args.get('date')
@@ -384,11 +412,13 @@ def available_times():
 
 
 
-
+#---------mybooking
 @app.route('/my-bookings')
 def my_bookings():
-    if 'username' not in session:
-        return redirect(url_for('login'))
+
+    if 'role' not in session or session['role'] == 'admin''user':
+        flash("Anda harus login untuk booking!", "danger")
+        return redirect(url_for('home'))
 
     username = session['username']
     role = session['role']
@@ -423,7 +453,7 @@ def my_bookings():
     return render_template('my_bookings.html', bookings=filtered_bookings, today=today, now=now)
 
 
-
+#------cancel booking
 @app.route('/cancel-booking/<int:booking_id>', methods=['POST'])
 def cancel_booking(booking_id):
     if 'user_id' not in session:
@@ -442,8 +472,6 @@ def cancel_booking(booking_id):
         flash('Anda tidak memiliki izin untuk membatalkan booking ini.', 'danger')
 
     return redirect(url_for('my_bookings'))
-
-
 
 
 @app.template_filter('to_datetime')
@@ -474,6 +502,7 @@ def format_date_id(value):
 
 @app.route('/jadwal-booking')
 def jadwal_booking():
+
     rooms = Room.query.all()
     today = datetime.today().date()
     start_time = datetime.combine(today, time(7, 0))
@@ -491,8 +520,10 @@ def jadwal_booking():
 
 @app.route('/schedule')
 def schedule_view():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
+
+    if 'role' not in session or session['role'] == 'admin''user':
+        flash("anda perlu login!", "danger")
+        return redirect(url_for('home'))
 
 
     local_now = datetime.utcnow() + timedelta(hours=7)
@@ -629,6 +660,11 @@ def tv_schedule():
 
 @app.route('/export-schedule')
 def export_schedule():
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+    
     today = request.args.get('date')
     if today:
         try:
@@ -693,20 +729,40 @@ def export_schedule():
 
 
 
-
+#-----------kelola admin
 @app.route('/admin/users')
 def manage_users():
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-    all_users = User.query.order_by(User.username).all()
-    total_pages = ceil(len(all_users) / per_page)
-    users = all_users[(page - 1) * per_page: page * per_page]
 
-    return render_template("manage_users.html", users=users, page=page, total_pages=total_pages)
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 6
+    search_query = request.args.get('query', '').strip()
+
+    users_query = User.query.order_by(User.username)
+
+    if search_query:
+        users_query = users_query.filter(User.username.ilike(f'%{search_query}%'))
+
+    users_pagination = users_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template(
+        "manage_users.html",
+        users=users_pagination.items,
+        pagination=users_pagination,
+        request=request
+    )
 
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+
     if request.method == 'POST':
         user_id = request.form.get('id') 
 
@@ -775,29 +831,96 @@ def add_user():
     return render_template('manage_users.html', user=None, users=User.query.all())
 
 
-@app.route('/edit_user/<int:user_id>')
-def edit_user(user_id):
-    user = User.query.get_or_404(user_id)
-    all_users = User.query.all() 
-    return render_template('manage_users.html', user=user, users=all_users)
+@app.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST']) # <-- Tambahkan methods=['GET', 'POST']
 
+def edit_user(user_id):
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+    
+    user = User.query.get_or_404(user_id) # Dapatkan pengguna yang akan diedit
+
+    if request.method == 'POST':
+        try:
+
+
+            user.department = request.form.get('department') 
+            user.pic_name = request.form.get('pic_name')
+            user.role = request.form.get('role')
+
+            # Periksa jika password baru diberikan
+            new_password = request.form.get('password')
+            if new_password:
+
+                user.password_hash = generate_password_hash(new_password)
+            
+            db.session.commit() 
+            flash('Pengguna berhasil diperbarui!', 'success') 
+            return redirect(url_for('manage_users'))
+        except Exception as e:
+            db.session.rollback() 
+            flash(f'Terjadi kesalahan saat memperbarui pengguna: {str(e)}', 'danger')
+   
+            return redirect(url_for('edit_user', user_id=user.id))
+    
+
+    return render_template('manage_users.html', user=user) 
 
 @app.route('/admin/users/delete/<int:user_id>')
 def delete_user(user_id):
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+    
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
     return redirect(url_for('manage_users'))
 
 
-class TvImage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(120), nullable=False)
-    caption = db.Column(db.String(255))
-    is_active = db.Column(db.Boolean, default=True) 
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+@app.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    if 'user_id' not in session:
+        flash("Silakan login terlebih dahulu.", "warning")
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if not user.check_password(old_password):
+            flash("Password lama salah.", "danger")
+            return redirect(url_for('change_password'))
+
+        # TAMBAHAN LOGIKA BARU DI SINI
+        if old_password == new_password:
+            flash("Password baru tidak boleh sama dengan password lama.", "warning")
+            return redirect(url_for('change_password'))
+        
+        if new_password != confirm_new_password:
+            flash('Password baru tidak cocok dengan konfirmasi!', 'danger')
+            return redirect(url_for('change_password'))
+        
+        if len(new_password) < 6:
+            flash('Password baru minimal 6 karakter.', 'danger')
+            return redirect(url_for('change_password'))
+
+        user.set_password(new_password)
+        db.session.commit()
+        
+        flash("Password berhasil diubah.", "success")
+        return redirect(url_for('change_password'))
+
+    return render_template('change_password.html')
 
 
+
+#---------------------------upload gambar
 # Fungsi cek ekstensi
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -805,8 +928,10 @@ def allowed_file(filename):
 # Route upload gambar
 @app.route('/admin/upload_image', methods=['GET', 'POST'])
 def upload_image():
-    if session.get('role') != 'admin':
-        return redirect('/')
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
 
     if request.method == 'POST':
         file = request.files.get('image')
@@ -848,8 +973,10 @@ def file_too_large(e):
 
 @app.route('/admin/manage_images')
 def manage_images():
-    if session.get('role') != 'admin':
-        return redirect('/')
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
 
     images = TvImage.query.order_by(TvImage.upload_date.desc()).all()
 
@@ -888,8 +1015,9 @@ def manage_images():
 
 @app.route('/admin/edit_image/<int:image_id>', methods=['GET', 'POST'])
 def edit_image(image_id):
-    if session.get('role') != 'admin':
-        return redirect('/')
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
 
     image = TvImage.query.get_or_404(image_id)
     old_filename = image.filename  
@@ -923,8 +1051,10 @@ def edit_image(image_id):
 
 @app.route('/admin/delete_image/<int:image_id>', methods=['POST'])
 def delete_image(image_id):
-    if session.get('role') != 'admin':
-        return redirect('/')
+
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
 
     image = TvImage.query.get_or_404(image_id)
 
@@ -952,6 +1082,7 @@ def api_tv_images():
     return jsonify({'product_images': result})
 
 
+#------------Kelola Booking
 @app.route('/admin/bookings')
 def manage_bookings():
     page = request.args.get('page', 1, type=int)
@@ -961,6 +1092,11 @@ def manage_bookings():
 
 @app.route('/admin/bookings/delete/<int:booking_id>', methods=['POST'])
 def delete_booking(booking_id):
+    
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+
     booking = Booking.query.get_or_404(booking_id)
     db.session.delete(booking)
     db.session.commit()
@@ -970,6 +1106,10 @@ def delete_booking(booking_id):
 
 @app.route('/admin/bookings/bulk-delete', methods=['POST'])
 def bulk_delete_bookings():
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+
     booking_ids = request.form.getlist('booking_ids')
     if booking_ids:
         Booking.query.filter(Booking.id.in_(booking_ids)).delete(synchronize_session=False)
@@ -979,7 +1119,7 @@ def bulk_delete_bookings():
         flash('Tidak ada booking yang dipilih.', 'warning')
     return redirect(url_for('manage_bookings'))
 
-
+#------------------------
 
 
 

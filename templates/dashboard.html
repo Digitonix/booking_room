@@ -39,7 +39,7 @@
                 text-overflow: clip;
             }
         }
-      
+     
         .pagination a.active {
             background-color: #4338ca; /* Indigo-700 */
             color: white;
@@ -58,7 +58,6 @@
             
             {% if session['user_id'] %}
             <div class="hidden sm:block w-full sm:w-auto mt-3 sm:mt-0">
-                <!-- Tombol Logout -->
                 <button id="logout-button-desktop"
                     class="bg-red-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-red-600 transition-colors duration-300 w-full">
                     <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -79,18 +78,23 @@
         <div class="flex flex-col sm:flex-row justify-center sm:justify-start gap-4 mb-8">
             {% if session['role'] == 'admin' %}
             <div class="w-full sm:w-auto">
-   
+ 
                 <a href="{{ url_for('tv_schedule') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full flex items-center justify-center text-center">
                     <i class="fas fa-tv mr-2"></i>Jadwal TV Display
                 </a>
             </div>
             {% endif %}
             
-      
+     
             {% if session['user_id'] %}
             <div class="w-full sm:w-auto">
                 <a href="{{ url_for('my_bookings') }}" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full flex items-center justify-center text-center">
                     <i class="fas fa-calendar-check mr-2"></i>Booking Saya
+                </a>
+            </div>
+            <div class="w-full sm:w-auto">
+                <a href="{{ url_for('change_password') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full flex items-center justify-center text-center">
+                    <i class="fas fa-key mr-2"></i>Ubah Password
                 </a>
             </div>
             {% endif %}
@@ -113,7 +117,7 @@
             
             {% if session['user_id'] %}
             <div class="block sm:hidden w-full sm:w-auto">
-              
+             
                 <button id="logout-button-mobile"
                     class="bg-red-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-red-600 transition-colors duration-300 w-full">
                     <i class="fas fa-sign-out-alt mr-2"></i>Logout
