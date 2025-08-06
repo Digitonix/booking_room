@@ -7,139 +7,298 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #28a745;
+            --secondary-color: #6c757d;
+            --dark-blue: #4223f3;
+            --bg-light: #eef4f9;
+        }
+
         body {
-            background-color: #eef4f9; /* Latar belakang abu-abu sangat muda */
+            background-color: var(--bg-light);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #343a40;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Pastikan body mengambil tinggi penuh viewport */
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
 
         .container {
-            max-width: 800px; /* Batasi lebar container untuk form */
-            padding-top: 30px; /* Tambah padding atas agar tidak terlalu menempel */
-            padding-bottom: 30px; /* Tambah padding bawah */
+            width: 100%;
+            max-width: 900px; /* Batasi lebar maksimal di desktop */
+            padding: 0;
         }
-
+        
         .card {
-            border: none; /* Hapus border default card */
-            border-radius: 15px; /* Sudut lebih membulat */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Bayangan lebih kuat */
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f0f8ff);
         }
-
 
         .card-header {
-            background-color: #1A365D; /* Warna biru gelap konsisten */
+            background: linear-gradient(135deg, #1A365D, #1f4270);
             color: #ffffff;
-            border-bottom: none; /* Hapus border bawah header */
-            border-top-left-radius: 15px; /* Sesuaikan radius */
-            border-top-right-radius: 15px; /* Sesuaikan radius */
-            padding: 20px 25px; /* Padding lebih besar di header */
-            font-size: 1.5rem; /* Ukuran font judul header */
+            border-bottom: none;
+            padding: 30px 40px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
         }
 
         .card-header h5 {
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Rata tengah ikon dan teks */
-            gap: 10px; /* Jarak antara ikon dan teks */
+            font-weight: 700;
+            margin-bottom: 0;
         }
-        
+
         .card-body {
-            padding: 30px 25px; /* Padding lebih besar di body card */
+            padding: 40px;
         }
 
         .form-label {
-            font-weight: 600; /* Label lebih tebal */
-            color: #555; /* Warna label sedikit gelap */
-            margin-bottom: 5px; /* Jarak bawah label */
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
         }
 
         .form-control,
         .form-select {
-            border-radius: 8px; /* Sudut input yang lebih halus */
-            border: 1px solid #ced4da; /* Border standar */
-            padding: 10px 15px; /* Padding input lebih besar */
+            border-radius: 12px;
+            border: 1px solid #dee2e6;
+            padding: 12px 18px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #80bdff; /* Border biru saat focus */
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Shadow biru saat focus */
-        }
-
-        .form-text {
-            font-size: 0.85em; /* Ukuran font untuk teks bantuan */
-            color: #6c757d; /* Warna teks bantuan */
-            margin-top: 5px;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15);
         }
 
         .btn {
-            border-radius: 8px; /* Sudut tombol lebih halus */
-            padding: 12px 20px; /* Padding tombol lebih besar */
-            font-size: 1.1rem; /* Ukuran font tombol lebih besar */
-            font-weight: 600; /* Tombol lebih tebal */
-            transition: all 0.3s ease; /* Transisi hover */
+            border-radius: 12px;
+            padding: 14px 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.4);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:hover::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
         }
 
         .btn-success {
-            background-color: #28a745; /* Hijau Bootstrap */
-            border-color: #28a745;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
         }
+
         .btn-success:hover {
-            background-color: #218838; /* Hijau lebih gelap saat hover */
+            background-color: #218838;
             border-color: #1e7e34;
-            transform: translateY(-2px); /* Efek naik saat hover */
-            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(40, 167, 69, 0.25);
         }
 
         .btn-secondary {
-            background-color: #6c757d; /* Abu-abu Bootstrap */
-            border-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268; /* Abu-abu lebih gelap saat hover */
-            border-color: #545b62;
-            transform: translateY(-2px); /* Efek naik saat hover */
-            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
         }
 
-        .alert {
-            border-radius: 8px;
-            font-weight: 500;
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(108, 117, 125, 0.25);
         }
         
-        /* Ikon pada Label (opsional, jika ingin menambahkan ikon di samping label) */
-        /* .form-label i {
-            margin-right: 8px;
-            color: #007bff;
-        } */
+        /* Gaya Modal Baru */
+        .modal-content {
+            border-radius: 20px;
+            text-align: center;
+            overflow: hidden;
+            border: none;
+        }
+
+        .modal-header {
+            background-color: #fff;
+            padding: 1.5rem 1rem 0;
+            border-bottom: none;
+            position: relative;
+        }
+        
+        .modal-header .btn-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+
+        .modal-body {
+            padding: 0 2rem 2rem;
+            color: #495057;
+            text-align: center;
+        }
+
+        .modal-footer {
+            border-top: none;
+            padding-top: 0;
+            justify-content: center;
+        }
+
+        /* Icon Container */
+        .icon-container {
+            font-size: 4rem;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            color: #fff;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        .icon-container.success {
+            background: linear-gradient(45deg, #28a745, #5cb85c);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .icon-container.danger {
+            background: linear-gradient(45deg, #dc3545, #e05e6c);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Animasi */
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            80% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .modal-title-custom {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 10px;
+        }
+
+        .modal-body p {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* Penyesuaian untuk Mobile */
+        @media (max-width: 767.98px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                min-height: auto;
+            }
+            .card {
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+            .card-header {
+                font-size: 1.2rem;
+                padding: 20px 25px;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .card-body {
+                padding: 25px;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            /* Ini adalah bagian yang diperbaiki */
+            .row.g-4 {
+                gap: 0rem; /* Jarak antar baris dan kolom yang lebih kecil */
+            }
+            .col-md-6, .col-md-4 {
+                width: 100%; /* Setiap input mengambil 100% lebar layar */
+                flex: 0 0 auto;
+                padding-right: 0;
+                padding-left: 0;
+            }
+            .form-control,
+            .form-select,
+            .form-label {
+                font-size: 1rem; /* Ukuran font lebih besar */
+                padding: 12px 15px; /* Padding input lebih besar */
+            }
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            .modal-body {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="card shadow-lg border-0">
+        <div class="card shadow-lg">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i> Form Booking Ruangan</h5>
+                <i class="fas fa-calendar-plus me-2"></i>
+                <h5 class="mb-0">Form Booking Ruangan</h5>
             </div>
             <div class="card-body">
-                <form method="POST" class="needs-validation" novalidate>
+                <form method="POST" class="needs-validation" novalidate onsubmit="return handleFormSubmit(event)">
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label for="userName" class="form-label">Nama</label>
                             <input type="text" name="user" class="form-control" id="userName" required placeholder="Masukkan Nama Anda">
                             <div class="invalid-feedback">Nama wajib diisi.</div>
                         </div>
-
                         <div class="col-md-6">
                             <label for="department" class="form-label">Departemen</label>
                             <input type="text" name="department" class="form-control" id="department" required placeholder="Contoh: IT, HR, Legal">
                             <div class="invalid-feedback">Departemen wajib diisi.</div>
                         </div>
-
                         <div class="col-md-6">
                             <label for="room_id" class="form-label">Ruangan</label>
                             <select name="room_id" class="form-select" id="room_id" required>
@@ -150,22 +309,19 @@
                             </select>
                             <div class="invalid-feedback">Ruangan wajib dipilih.</div>
                         </div>
-
                         <div class="col-md-6">
                             <label for="date" class="form-label">Tanggal</label>
                             <input type="date" name="date" class="form-control" id="date" required>
                             <div class="invalid-feedback">Tanggal wajib diisi.</div>
                         </div>
-
                         <div class="col-md-4">
-                            <label for="start_time" class="form-label">Jam Mulai (Tersedia)</label>
+                            <label for="start_time" class="form-label">Jam Mulai</label>
                             <select name="start_time" class="form-select" id="start_time" required>
                                 <option value="">-- Pilih Jam Mulai --</option>
                             </select>
-                            <div class="form-text text-muted">* Rentang waktu Mulai-Akhir minimal 60 menit.</div>
+                            <div class="form-text text-muted">* Durasi booking minimal 60 menit.</div>
                             <div class="invalid-feedback">Jam mulai wajib diisi.</div>
                         </div>
-
                         <div class="col-md-4">
                             <label for="end_time" class="form-label">Jam Akhir</label>
                             <select name="end_time" class="form-select" id="end_time" required>
@@ -173,7 +329,6 @@
                             </select>
                             <div class="invalid-feedback">Jam akhir wajib diisi.</div>
                         </div>
-
                         <div class="col-md-4">
                             <label for="duration" class="form-label">Durasi (Menit)</label>
                             <input type="text" class="form-control" id="duration" readonly>
@@ -190,11 +345,11 @@
                         <div class="invalid-feedback">Uraian kegiatan wajib diisi.</div>
                     </div>
 
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success">
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-success" id="submit-btn" disabled>
                             <i class="fas fa-check-circle me-2"></i> Booking Sekarang
                         </button>
-                        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                        <a href="#" class="btn btn-secondary" id="cancel-btn">
                             <i class="fas fa-arrow-left me-2"></i> Kembali
                         </a>
                     </div>
@@ -203,17 +358,51 @@
         </div>
     </div>
 
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="icon-container danger"><i class="fas fa-times-circle"></i></div>
+                <div class="modal-body">
+                    <h5 class="modal-title-custom text-danger">Batalkan Booking?</h5>
+                    <p>Apakah Anda yakin ingin membatalkan proses booking ini? Semua data yang sudah diisi akan hilang.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+                    <a href="{{ url_for('home') }}" class="btn btn-danger">Ya, Batalkan</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="icon-container success"><i class="fas fa-check-circle"></i></div>
+                <div class="modal-body">
+                    <h5 class="modal-title-custom text-success">Booking Berhasil!</h5>
+                    <p>Permintaan booking ruangan Anda telah berhasil dikirim. Anda akan diarahkan kembali ke halaman utama dalam 5 detik.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const form = document.querySelector('.needs-validation'); // Pindahkan definisi form ke scope yang lebih luas
+        const form = document.querySelector('.needs-validation');
         const roomSelect = document.getElementById('room_id');
         const dateInput = document.getElementById('date');
         const startSelect = document.getElementById('start_time');
         const endSelect = document.getElementById('end_time');
         const durationOutput = document.getElementById('duration');
-        const descriptionInput = document.getElementById('description'); // Tambahkan ini
+        const descriptionInput = document.getElementById('description');
         const alertBox = document.getElementById('conflict-alert');
-        const bookButton = document.querySelector('button[type="submit"]');
+        const bookButton = document.getElementById('submit-btn');
+        const cancelButton = document.getElementById('cancel-btn');
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
 
         let existingBookings = [];
         let isConflict = false;
@@ -243,17 +432,16 @@
             const endMins = timeToMinutes(end);
             isConflict = false;
 
-            // Pastikan endMins lebih besar dari startMins untuk durasi positif (minimal 30 menit)
-            if (endMins <= startMins || (endMins - startMins) < 30) { // Tambahkan pengecekan durasi minimal
+            if (endMins <= startMins || (endMins - startMins) < 60) {
                 isConflict = true;
-                // Opsional: tampilkan pesan lebih spesifik jika durasi terlalu pendek
-                // alertBox.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Durasi booking minimal 30 menit.';
+                alertBox.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Durasi booking minimal 60 menit.';
             } else {
                 for (const item of existingBookings) {
                     const bookedStart = timeToMinutes(item.start);
                     const bookedEnd = timeToMinutes(item.end);
                     if (startMins < bookedEnd && endMins > bookedStart) {
                         isConflict = true;
+                        alertBox.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Jam yang Anda pilih bertabrakan dengan booking lain. Silakan pilih waktu yang berbeda.';
                         break;
                     }
                 }
@@ -266,7 +454,6 @@
             for (const item of bookings) {
                 const bookedStart = timeToMinutes(item.start);
                 const bookedEnd = timeToMinutes(item.end);
-                // Cek apakah waktu saat ini berada di dalam rentang booking
                 if (minutes >= bookedStart && minutes < bookedEnd) {
                     return true;
                 }
@@ -276,24 +463,21 @@
 
         function populateStartTimes() {
             startSelect.innerHTML = '<option value="">-- Pilih Jam Mulai --</option>';
-            const interval = 60; // Interval 30 menit
+            const interval = 60;
             const selectedDate = new Date(dateInput.value);
-            selectedDate.setHours(0, 0, 0, 0); 
+            selectedDate.setHours(0, 0, 0, 0);
             const today = new Date();
-            today.setHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
 
             const isToday = selectedDate.toDateString() === today.toDateString();
             const currentMinutes = new Date().getHours() * 60 + new Date().getMinutes();
 
-            for (let h = 7; h <= 17; h++) { // Dari jam 07:00 sampai 21:30 (sebelum jam 22:00)
+            for (let h = 7; h <= 17; h++) {
                 for (let m = 0; m < 60; m += interval) {
-                    // Batasi hingga 21:30 (jam 22:00 tidak bisa mulai jika min durasi 30 menit)
-                    if (h === 21 && m >= 60) continue; 
-
+                    if (h === 17 && m > 0) continue;
                     const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                     const timeInMinutes = h * 60 + m;
-                    
-                    // Filter jam yang sudah lewat jika tanggal yang dipilih adalah hari ini
+
                     if (isToday && timeInMinutes <= currentMinutes) {
                         continue;
                     }
@@ -322,8 +506,8 @@
             }
 
             const startMinutes = timeToMinutes(start);
-            const interval = 60; // Interval 30 menit
-            const latestEnd = 18 * 60; // Sampai jam 22:00 (10 malam)
+            const interval = 60;
+            const latestEnd = 18 * 60;
 
             for (let mins = startMinutes + interval; mins <= latestEnd; mins += interval) {
                 const [h, m] = [Math.floor(mins / 60), mins % 60];
@@ -332,13 +516,12 @@
                 let conflictWithNextBooking = false;
                 for (const item of existingBookings) {
                     const bookedStart = timeToMinutes(item.start);
-                    // Jika rentang baru melewati start booking berikutnya
-                    if (mins > bookedStart && startMinutes < bookedStart) { 
+                    if (mins > bookedStart && startMinutes < bookedStart) {
                         conflictWithNextBooking = true;
                         break;
                     }
                 }
-                if (conflictWithNextBooking) break; 
+                if (conflictWithNextBooking) break;
 
                 const opt = document.createElement('option');
                 opt.value = timeStr;
@@ -349,44 +532,64 @@
         }
 
         function updateBookingButtonState() {
-            // Memastikan form object diakses dengan benar
-            const formValid = form.checkValidity(); 
+            const formValid = form.checkValidity();
             const startSelected = startSelect.value !== "";
             const endSelected = endSelect.value !== "";
             const roomSelected = roomSelect.value !== "";
             const dateSelected = dateInput.value !== "";
             const descriptionFilled = descriptionInput.value.trim() !== "";
 
-            // Tombol aktif jika semua validasi terpenuhi
             bookButton.disabled = !(formValid && startSelected && endSelected && roomSelected && dateSelected && descriptionFilled && !isConflict);
         }
 
-        // Event Listeners
+        function handleFormSubmit(event) {
+            if (!form.checkValidity() || isConflict) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (isConflict) {
+                    alertBox.classList.remove('d-none');
+                }
+                form.classList.add('was-validated');
+                updateBookingButtonState();
+                return false;
+            } else {
+                event.preventDefault();
+                successModal.show();
+
+                // Set timeout untuk menutup modal dan submit form
+                setTimeout(() => {
+                    successModal.hide();
+                    form.submit();
+                }, 5000); // 5000ms = 5 detik
+                
+                return false;
+            }
+        }
+        
+        cancelButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            cancelModal.show();
+        });
+
         roomSelect.addEventListener('change', fetchAvailableTimes);
         dateInput.addEventListener('change', fetchAvailableTimes);
         startSelect.addEventListener('change', populateEndTimes);
         endSelect.addEventListener('change', calculateDuration);
-        descriptionInput.addEventListener('input', updateBookingButtonState); // Tambahkan ini
+        descriptionInput.addEventListener('input', updateBookingButtonState);
 
-        // Fetch initial data if room_id and date are pre-filled (e.g., after validation error)
         document.addEventListener('DOMContentLoaded', () => {
-            // Memastikan form didefinisikan sebelum digunakan
-            const form = document.querySelector('.needs-validation'); 
-
-            // Set the minimum date for the date input to today
             const today = new Date();
             const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             dateInput.min = `${yyyy}-${mm}-${dd}`;
-
 
             if (form.classList.contains('was-validated')) {
                 if (roomSelect.value && dateInput.value) {
                     fetchAvailableTimes().then(() => {
                         if (startSelect.value) {
                             populateEndTimes();
-                            const existingEndTime = endSelect.dataset.prefilledValue; 
+                            const existingEndTime = endSelect.dataset.prefilledValue;
                             if (existingEndTime) {
                                 endSelect.value = existingEndTime;
                             }
@@ -394,14 +597,14 @@
                     });
                 }
             }
-            updateBookingButtonState(); // Set initial state of the button
+            updateBookingButtonState();
         });
 
         function fetchAvailableTimes() {
             const date = dateInput.value;
             const room_id = roomSelect.value;
             
-            bookButton.disabled = true; // Nonaktifkan tombol booking sampai data baru diambil
+            bookButton.disabled = true;
 
             if (!date || !room_id) {
                 existingBookings = [];
@@ -419,7 +622,12 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `date=${date}&room_id=${room_id}`
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return res.json();
+            })
             .then(data => {
                 existingBookings = data.booked_times || [];
                 populateStartTimes();
@@ -445,25 +653,6 @@
                 updateBookingButtonState();
             });
         }
-
-        // Bootstrap validation
-        (() => {
-            'use strict';
-            // form sudah didefinisikan di atas (global scope atau di dalam DOMContentLoaded)
-            Array.from(document.querySelectorAll('.needs-validation')).forEach(formInstance => { // Menggunakan formInstance untuk menghindari konflik nama
-                formInstance.addEventListener('submit', event => {
-                    if (!formInstance.checkValidity() || isConflict) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if (isConflict) {
-                            alertBox.classList.remove('d-none');
-                        }
-                    }
-                    formInstance.classList.add('was-validated');
-                    updateBookingButtonState();
-                }, false);
-            });
-        })();
     </script>
 </body>
 </html>

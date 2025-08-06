@@ -7,22 +7,22 @@
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles: Mengadaptasi gaya asli dan menambahkan sentuhan modern */
+  
         body {
-            /* Latar belakang: Gunakan gambar dari Flask atau placeholder */
+
             background: url("{{ url_for('static', filename='uploads/background.jpg') if room else 'https://placehold.co/1920x1080/1a202c/e2e8f0?text=Jadwal+Ruangan' }}") no-repeat center center fixed;
             background-size: cover;
-            font-family: 'Inter', Arial, sans-serif; /* Menggunakan font Inter */
+            font-family: 'Inter', Arial, sans-serif; 
             font-size: 1.3rem;
             display: flex;
-            flex-direction: column; /* Konten bertumpuk vertikal */
+            flex-direction: column; 
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Memastikan mengambil tinggi viewport penuh */
-            height: 100vh; /* Set tinggi eksplisit ke 100vh */
+            min-height: 100vh; 
+            height: 100vh;
             margin: 0;
-            overflow: hidden; /* Mencegah scrollbar selama transisi */
-            color: #333; /* Warna teks default */
+            overflow: hidden; 
+            color: #333; 
         }
 
         .container-fluid {
@@ -200,15 +200,15 @@
         /* Penegasan font untuk tanggal */
         #display-date {
             font-weight: 650; 
-            font-size: 1.2rem; 
+            font-size: 1rem; 
             text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2); 
             color: #1a73e8; 
         }
 
         /* Penegasan font untuk jam */
         #current-time {
-            font-weight: 500; /* Bold */
-            font-size: 1.2rem; /* Ukuran font disesuaikan menjadi lebih kecil */
+            font-weight: 650; /* Bold */
+            font-size: 1rem; /* Ukuran font disesuaikan menjadi lebih kecil */
             color: #4285f4; /* Biru yang sedikit lebih terang */
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Bayangan halus */
         }
@@ -331,32 +331,36 @@
 <body>
 
     <div id="tv-display-container" class="container-fluid py-4">
-        <div class="flex items-center justify-between flex-wrap gap-4 px-2 pb-4 md:px-6 md:pb-6 border-b border-gray-200">
+        <div class="px-2 pb-4 md:px-6 md:pb-6 border-b border-gray-200">
 
-            
-
-            <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-4">
-
+            <div class="flex items-center justify-between gap-4">
                 <img src="{{ url_for('static', filename='uploads/danantara-logo-black-v3.png') if room else 'https://placehold.co/60x60/ffffff/000000?text=Logo+Danantara' }}" 
                     alt="Logo Danantara" 
                     class="h-10 md:h-16 w-auto" 
                     onerror="this.onerror=null;this.src='https://placehold.co/60x60/ffffff/000000?text=Logo+Danantara';">
-
-                <h1 class="text-xl md:text-3xl lg:text-4xl font-extrabold text-blue-600 drop-shadow-md text-center">
-                    Jadwal Ruangan <span id="room-name">{{ room.name if room else 'Memuat...' }}</span>
-                </h1>
-
+                
                 <img src="{{ url_for('static', filename='uploads/logo-bri.png') if room else 'https://placehold.co/60x60/ffffff/000000?text=Logo+BRI' }}" 
                     alt="Logo BRI" 
                     class="h-10 md:h-16 w-auto" 
                     onerror="this.onerror=null;this.src='https://placehold.co/60x60/ffffff/000000?text=Logo+BRI';">
             </div>
+            <br>
+            <div class="text-center mt-2 md:mt-4">
+                <h1 class="text-lg md:text-3xl lg:text-4xl font-extrabold text-blue-600 drop-shadow-md">
+                    Jadwal Ruangan <span id="room-name">{{ room.name if room else 'Memuat...' }}</span>
+                </h1>
+            </div>
         </div>
 
-        <p class="current-day">
-            Menampilkan jadwal untuk: <strong id="display-date">{{ selected_date|format_date_id if selected_date else 'Memuat...' }}</strong><br>
-            Jam saat ini: <strong id="current-time"></strong>
-        </p>
+
+        <div class="current-day flex flex-col md:flex-row md:justify-center items-center gap-1 md:gap-4 text-sm md:text-base">
+            <p class="text-center md:text-left">
+                Menampilkan jadwal untuk: <strong id="display-date" class="whitespace-nowrap">{{ selected_date|format_date_id if selected_date else 'Memuat...' }}</strong>
+            </p>
+            <p class="text-center md:text-left">
+                Jam saat ini: <strong id="current-time" class="whitespace-nowrap"></strong>
+            </p>
+        </div>
 
 
         <div class="table-responsive md:block hidden">
