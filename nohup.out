@@ -26,3 +26,7 @@
 [2025-08-07 11:03:29 +0000] [2422] [INFO] Hang up: Master
 [2025-08-07 11:03:29 +0000] [2511] [INFO] Booting worker with pid: 2511
 [2025-08-07 11:03:29 +0000] [2422] [ERROR] Worker (pid:2424) was sent SIGHUP!
+[2025-08-08 15:24:40 +0000] [2511] [INFO] Worker exiting (pid: 2511)
+[2025-08-08 15:24:40 +0000] [2422] [INFO] Handling signal: term
+[2025-08-08 15:24:40 +0000] [2422] [ERROR] Worker (pid:2511) was sent SIGTERM!
+[2025-08-08 15:24:40 +0000] [2422] [INFO] Shutting down: Master

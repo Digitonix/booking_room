@@ -6,17 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ==================== A. Variabel Warna BRI ==================== */
         :root {
-            --primary-color: #28a745;
+            --primary-color: #3b82f6; 
+            --primary-hover: #3b82f6;
             --secondary-color: #6c757d;
-            --dark-blue: #4223f3;
-            --bg-light: #eef4f9;
+            --secondary-hover: #5a6268;
+            --success-color: #4CAF50; /* Hijau modern */
+            --success-hover: #43A047;
+            --danger-color: #E53935; /* Merah elegan */
+            --danger-hover: #C62828;
+            
+            /* Latar belakang yang lebih elegan */
+            --card-bg: #f8f9fa;
+            --header-bg: var(--primary-color);
+            --body-bg: #e9ecef;
         }
 
+        /* ==================== B. Gaya Dasar ==================== */
         body {
-            background-color: var(--bg-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--body-bg);
+            /* Mengganti font-family menjadi 'Poppins' */
+            font-family: 'Poppins', sans-serif; 
             color: #343a40;
             display: flex;
             justify-content: center;
@@ -28,20 +43,28 @@
 
         .container {
             width: 100%;
-            max-width: 900px; /* Batasi lebar maksimal di desktop */
+            max-width: 900px;
             padding: 0;
         }
-        
+
+        /* ==================== C. Gaya Card (Kotak Form) ==================== */
         .card {
             border: none;
             border-radius: 20px;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            background: linear-gradient(135deg, #ffffff, #f0f8ff);
+            background: var(--card-bg);
+            transform: scale(1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
         }
 
         .card-header {
-            background: linear-gradient(135deg, #1A365D, #1f4270);
+            background: var(--header-bg);
             color: #ffffff;
             border-bottom: none;
             padding: 30px 40px;
@@ -52,38 +75,63 @@
             gap: 15px;
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
+            position: relative;
+            animation: fadeInDown 0.8s ease-out;
         }
 
         .card-header h5 {
             font-weight: 700;
             margin-bottom: 0;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .card-body {
             padding: 40px;
         }
 
+        /* ==================== D. Gaya Form Field (Input, Label, dsb) ==================== */
         .form-label {
-            font-weight: 600;
-            color: #555;
+            font-weight: 500; /* Mengubah font-weight menjadi 500 agar lebih elegan */
+            color: #495057; 
             margin-bottom: 8px;
-            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
         }
-
+        
+        .form-label i {
+            color: #3b82f6; /* Warna ikon diubah menjadi emas sebagai aksen */
+        }
+        
+        /* Gaya input field modern dan minimalis (border bawah saja) */
         .form-control,
         .form-select {
-            border-radius: 12px;
-            border: 1px solid #dee2e6;
-            padding: 12px 18px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 0;
+            border: none;
+            border-bottom: 2px solid #e9ecef;
+            background-color: transparent;
+            padding: 10px 0;
+            color: #343a40;
+            transition: border-color 0.3s ease;
         }
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15);
+            border-color: var(--primary-color);
+            box-shadow: none;
+            background-color: transparent;
         }
 
+        /* Gaya placeholder yang lebih elegan */
+        .form-control::placeholder,
+        textarea::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+            font-weight: 300; /* Placeholder dibuat lebih tipis */
+        }
+        
+        /* ==================== E. Gaya Tombol (Button) ==================== */
         .btn {
             border-radius: 12px;
             padding: 14px 25px;
@@ -92,8 +140,10 @@
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
+            border: none;
+            color: #fff;
         }
-
+        
         .btn::after {
             content: '';
             position: absolute;
@@ -113,59 +163,69 @@
         }
 
         @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 1;
-            }
-            20% {
-                transform: scale(25, 25);
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                transform: scale(40, 40);
-            }
+            0% { transform: scale(0, 0); opacity: 1; }
+            20% { transform: scale(25, 25); opacity: 1; }
+            100% { opacity: 0; transform: scale(40, 40); }
         }
 
         .btn-success {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background-color: var(--success-color);
         }
 
         .btn-success:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
+            background-color: var(--success-hover);
             transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(40, 167, 69, 0.25);
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.25);
         }
 
         .btn-secondary {
             background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
         }
 
         .btn-secondary:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
+            background-color: var(--secondary-hover);
             transform: translateY(-3px);
             box-shadow: 0 8px 16px rgba(108, 117, 125, 0.25);
         }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(229, 57, 53, 0.25);
+        }
         
-        /* Gaya Modal Baru */
+        /* ==================== F. Gaya Alert dan Modal ==================== */
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            border-radius: 12px;
+        }
+        
+        /* Gaya Modal Baru yang lebih modern */
         .modal-content {
             border-radius: 20px;
             text-align: center;
             overflow: hidden;
             border: none;
+            padding: 0;
         }
 
         .modal-header {
-            background-color: #fff;
-            padding: 1.5rem 1rem 0;
             border-bottom: none;
+            padding: 2rem 2rem 1rem;
             position: relative;
+            background: transparent;
+            min-height: 50px;
+            flex-direction: column;
+            gap: 15px;
         }
-        
+
         .modal-header .btn-close {
             position: absolute;
             top: 15px;
@@ -178,14 +238,13 @@
             color: #495057;
             text-align: center;
         }
-
+        
         .modal-footer {
             border-top: none;
-            padding-top: 0;
+            padding: 1rem 2rem;
             justify-content: center;
         }
 
-        /* Icon Container */
         .icon-container {
             font-size: 4rem;
             width: 100px;
@@ -194,88 +253,50 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 auto 20px;
+            margin: 0 auto;
             color: #fff;
-            animation: bounceIn 0.8s ease-out;
+            animation: fadeIn 0.8s ease-out;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         .icon-container.success {
-            background: linear-gradient(45deg, #28a745, #5cb85c);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(45deg, #4CAF50, #66BB6A);
         }
 
         .icon-container.danger {
-            background: linear-gradient(45deg, #dc3545, #e05e6c);
-            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            background: linear-gradient(45deg, #E53935, #EF5350);
         }
 
-        /* Animasi */
-        @keyframes bounceIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.1); opacity: 1; }
-            80% { transform: scale(0.9); }
-            100% { transform: scale(1); }
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         .modal-title-custom {
             font-size: 1.8rem;
             font-weight: 700;
             color: #343a40;
-            margin-bottom: 10px;
+            margin-bottom: 0;
         }
 
-        .modal-body p {
-            font-size: 1rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        /* Penyesuaian untuk Mobile */
+        /* ==================== G. Penyesuaian untuk Mobile ==================== */
         @media (max-width: 767.98px) {
-            body {
-                padding: 10px;
-                align-items: flex-start;
-                min-height: auto;
-            }
-            .card {
-                border-radius: 10px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-            .card-header {
-                font-size: 1.2rem;
-                padding: 20px 25px;
-                flex-direction: column;
-                gap: 5px;
-            }
-            .card-body {
-                padding: 25px;
-            }
-            .btn {
-                padding: 12px 20px;
-                font-size: 1rem;
-            }
-            /* Ini adalah bagian yang diperbaiki */
-            .row.g-4 {
-                gap: 0rem; /* Jarak antar baris dan kolom yang lebih kecil */
-            }
-            .col-md-6, .col-md-4 {
-                width: 100%; /* Setiap input mengambil 100% lebar layar */
-                flex: 0 0 auto;
-                padding-right: 0;
-                padding-left: 0;
-            }
-            .form-control,
-            .form-select,
-            .form-label {
-                font-size: 1rem; /* Ukuran font lebih besar */
-                padding: 12px 15px; /* Padding input lebih besar */
-            }
-            .modal-dialog {
-                margin: 0.5rem;
-            }
-            .modal-body {
-                padding: 1.5rem;
-            }
+            body { padding: 10px; align-items: flex-start; min-height: auto; }
+            .card { border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
+            .card-header { font-size: 1.2rem; padding: 20px 25px; flex-direction: row; gap: 5px; justify-content: center; align-items: center; }
+            .card-body { padding: 25px; }
+            .btn { padding: 12px 20px; font-size: 1rem; }
+            .icon-container { width: 80px; height: 80px; font-size: 3rem; margin: 0 auto; }
+            .modal-title-custom { font-size: 1.5rem; }
+            .modal-dialog { margin: 10px; }
+            .modal-body { padding: 0 1rem 1rem; }
+            .modal-content { padding: 10px; }
+            
         }
     </style>
 </head>
@@ -283,24 +304,24 @@
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header">
-                <i class="fas fa-calendar-plus me-2"></i>
+                <i class="fas fa-calendar-check fa-lg"></i>
                 <h5 class="mb-0">Form Booking Ruangan</h5>
             </div>
             <div class="card-body">
                 <form method="POST" class="needs-validation" novalidate onsubmit="return handleFormSubmit(event)">
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label for="userName" class="form-label">Nama</label>
+                            <label for="userName" class="form-label"><i class="fas fa-user-circle"></i> Nama</label>
                             <input type="text" name="user" class="form-control" id="userName" required placeholder="Masukkan Nama Anda">
                             <div class="invalid-feedback">Nama wajib diisi.</div>
                         </div>
                         <div class="col-md-6">
-                            <label for="department" class="form-label">Departemen</label>
+                            <label for="department" class="form-label"><i class="fas fa-building"></i> Departemen</label>
                             <input type="text" name="department" class="form-control" id="department" required placeholder="Contoh: IT, HR, Legal">
                             <div class="invalid-feedback">Departemen wajib diisi.</div>
                         </div>
                         <div class="col-md-6">
-                            <label for="room_id" class="form-label">Ruangan</label>
+                            <label for="room_id" class="form-label"><i class="fas fa-door-open"></i> Ruangan</label>
                             <select name="room_id" class="form-select" id="room_id" required>
                                 <option value="">-- Pilih Ruangan --</option>
                                 {% for room in rooms %}
@@ -310,12 +331,12 @@
                             <div class="invalid-feedback">Ruangan wajib dipilih.</div>
                         </div>
                         <div class="col-md-6">
-                            <label for="date" class="form-label">Tanggal</label>
+                            <label for="date" class="form-label"><i class="fas fa-calendar-alt"></i> Tanggal</label>
                             <input type="date" name="date" class="form-control" id="date" required>
                             <div class="invalid-feedback">Tanggal wajib diisi.</div>
                         </div>
                         <div class="col-md-4">
-                            <label for="start_time" class="form-label">Jam Mulai</label>
+                            <label for="start_time" class="form-label"><i class="fas fa-clock"></i> Jam Mulai</label>
                             <select name="start_time" class="form-select" id="start_time" required>
                                 <option value="">-- Pilih Jam Mulai --</option>
                             </select>
@@ -323,24 +344,25 @@
                             <div class="invalid-feedback">Jam mulai wajib diisi.</div>
                         </div>
                         <div class="col-md-4">
-                            <label for="end_time" class="form-label">Jam Akhir</label>
+                            <label for="end_time" class="form-label"><i class="fas fa-clock"></i> Jam Akhir</label>
                             <select name="end_time" class="form-select" id="end_time" required>
                                 <option value="">-- Pilih Jam Akhir --</option>
                             </select>
                             <div class="invalid-feedback">Jam akhir wajib diisi.</div>
                         </div>
                         <div class="col-md-4">
-                            <label for="duration" class="form-label">Durasi (Menit)</label>
+                            <label for="duration" class="form-label"><i class="fas fa-hourglass-half"></i> Durasi</label>
                             <input type="text" class="form-control" id="duration" readonly>
                         </div>
                     </div>
 
                     <div class="alert alert-danger mt-4 d-none" id="conflict-alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Jam yang Anda pilih bertabrakan dengan booking lain. Silakan pilih waktu yang berbeda.
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span>Jam yang Anda pilih bertabrakan dengan booking lain. Silakan pilih waktu yang berbeda.</span>
                     </div>
                     
                     <div class="mt-4">
-                        <label for="description" class="form-label">Uraian Kegiatan</label>
+                        <label for="description" class="form-label"><i class="fas fa-book"></i> Uraian Kegiatan</label>
                         <textarea class="form-control" name="description" id="description" rows="3" placeholder="Contoh: Rapat koordinasi divisi, presentasi produk, dll." required></textarea>
                         <div class="invalid-feedback">Uraian kegiatan wajib diisi.</div>
                     </div>
@@ -349,9 +371,9 @@
                         <button type="submit" class="btn btn-success" id="submit-btn" disabled>
                             <i class="fas fa-check-circle me-2"></i> Booking Sekarang
                         </button>
-                        <a href="#" class="btn btn-secondary" id="cancel-btn">
+                        <button type="button" class="btn btn-secondary" id="cancel-btn">
                             <i class="fas fa-arrow-left me-2"></i> Kembali
-                        </a>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -359,11 +381,14 @@
     </div>
 
     <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="icon-container danger"><i class="fas fa-times-circle"></i></div>
-                <div class="modal-body">
+                <div class="modal-header">
+                    <div class="icon-container danger"><i class="fas fa-times-circle"></i></div>
                     <h5 class="modal-title-custom text-danger">Batalkan Booking?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <p>Apakah Anda yakin ingin membatalkan proses booking ini? Semua data yang sudah diisi akan hilang.</p>
                 </div>
                 <div class="modal-footer">
@@ -375,15 +400,18 @@
     </div>
     
     <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="icon-container success"><i class="fas fa-check-circle"></i></div>
-                <div class="modal-body">
+                <div class="modal-header">
+                    <div class="icon-container success"><i class="fas fa-check-circle"></i></div>
                     <h5 class="modal-title-custom text-success">Booking Berhasil!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <p>Permintaan booking ruangan Anda telah berhasil dikirim. Anda akan diarahkan kembali ke halaman utama dalam 5 detik.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -434,14 +462,14 @@
 
             if (endMins <= startMins || (endMins - startMins) < 60) {
                 isConflict = true;
-                alertBox.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Durasi booking minimal 60 menit.';
+                alertBox.querySelector('span').textContent = 'Durasi booking minimal 60 menit.';
             } else {
                 for (const item of existingBookings) {
                     const bookedStart = timeToMinutes(item.start);
                     const bookedEnd = timeToMinutes(item.end);
                     if (startMins < bookedEnd && endMins > bookedStart) {
                         isConflict = true;
-                        alertBox.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Jam yang Anda pilih bertabrakan dengan booking lain. Silakan pilih waktu yang berbeda.';
+                        alertBox.querySelector('span').textContent = 'Jam yang Anda pilih bertabrakan dengan booking lain. Silakan pilih waktu yang berbeda.';
                         break;
                     }
                 }
@@ -516,6 +544,7 @@
                 let conflictWithNextBooking = false;
                 for (const item of existingBookings) {
                     const bookedStart = timeToMinutes(item.start);
+                    const bookedEnd = timeToMinutes(item.end);
                     if (mins > bookedStart && startMinutes < bookedStart) {
                         conflictWithNextBooking = true;
                         break;
@@ -538,8 +567,8 @@
             const roomSelected = roomSelect.value !== "";
             const dateSelected = dateInput.value !== "";
             const descriptionFilled = descriptionInput.value.trim() !== "";
-
-            bookButton.disabled = !(formValid && startSelected && endSelected && roomSelected && dateSelected && descriptionFilled && !isConflict);
+            const isButtonEnabled = formValid && startSelected && endSelected && roomSelected && dateSelected && descriptionFilled && !isConflict;
+            bookButton.disabled = !isButtonEnabled;
         }
 
         function handleFormSubmit(event) {
@@ -556,11 +585,10 @@
                 event.preventDefault();
                 successModal.show();
 
-                // Set timeout untuk menutup modal dan submit form
                 setTimeout(() => {
                     successModal.hide();
                     form.submit();
-                }, 5000); // 5000ms = 5 detik
+                }, 5000);
                 
                 return false;
             }
@@ -575,7 +603,10 @@
         dateInput.addEventListener('change', fetchAvailableTimes);
         startSelect.addEventListener('change', populateEndTimes);
         endSelect.addEventListener('change', calculateDuration);
-        descriptionInput.addEventListener('input', updateBookingButtonState);
+        
+        const inputs = [form.userName, form.department, roomSelect, dateInput, startSelect, endSelect, descriptionInput];
+        inputs.forEach(input => input.addEventListener('change', updateBookingButtonState));
+        inputs.forEach(input => input.addEventListener('input', updateBookingButtonState));
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
@@ -583,7 +614,7 @@
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             dateInput.min = `${yyyy}-${mm}-${dd}`;
-
+            
             if (form.classList.contains('was-validated')) {
                 if (roomSelect.value && dateInput.value) {
                     fetchAvailableTimes().then(() => {
@@ -605,7 +636,7 @@
             const room_id = roomSelect.value;
             
             bookButton.disabled = true;
-
+            
             if (!date || !room_id) {
                 existingBookings = [];
                 populateStartTimes();
