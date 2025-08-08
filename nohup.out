@@ -10,3 +10,19 @@
 [2025-08-06 14:42:37 +0000] [124306] [INFO] Handling signal: term
 [2025-08-06 14:42:37 +0000] [124306] [ERROR] Worker (pid:124389) was sent SIGTERM!
 [2025-08-06 14:42:37 +0000] [124306] [INFO] Shutting down: Master
+[2025-08-06 16:03:28 +0000] [136473] [INFO] Starting gunicorn 23.0.0
+[2025-08-06 16:03:28 +0000] [136473] [INFO] Listening at: http://127.0.0.1:5000 (136473)
+[2025-08-06 16:03:28 +0000] [136473] [INFO] Using worker: sync
+[2025-08-06 16:03:28 +0000] [136475] [INFO] Booting worker with pid: 136475
+[2025-08-06 16:03:36 +0000] [136473] [INFO] Handling signal: hup
+[2025-08-06 16:03:36 +0000] [136473] [INFO] Hang up: Master
+[2025-08-06 16:03:36 +0000] [136473] [ERROR] Worker (pid:136475) was sent SIGHUP!
+[2025-08-06 16:03:36 +0000] [136557] [INFO] Booting worker with pid: 136557
+[2025-08-07 11:02:12 +0000] [2422] [INFO] Starting gunicorn 23.0.0
+[2025-08-07 11:02:12 +0000] [2422] [INFO] Listening at: http://127.0.0.1:5000 (2422)
+[2025-08-07 11:02:12 +0000] [2422] [INFO] Using worker: sync
+[2025-08-07 11:02:12 +0000] [2424] [INFO] Booting worker with pid: 2424
+[2025-08-07 11:03:29 +0000] [2422] [INFO] Handling signal: hup
+[2025-08-07 11:03:29 +0000] [2422] [INFO] Hang up: Master
+[2025-08-07 11:03:29 +0000] [2511] [INFO] Booting worker with pid: 2511
+[2025-08-07 11:03:29 +0000] [2422] [ERROR] Worker (pid:2424) was sent SIGHUP!
