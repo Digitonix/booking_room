@@ -30,3 +30,15 @@
 [2025-08-08 15:24:40 +0000] [2422] [INFO] Handling signal: term
 [2025-08-08 15:24:40 +0000] [2422] [ERROR] Worker (pid:2511) was sent SIGTERM!
 [2025-08-08 15:24:40 +0000] [2422] [INFO] Shutting down: Master
+[2025-08-08 16:23:09 +0000] [10950] [INFO] Starting gunicorn 23.0.0
+[2025-08-08 16:23:09 +0000] [10950] [INFO] Listening at: http://127.0.0.1:5000 (10950)
+[2025-08-08 16:23:09 +0000] [10950] [INFO] Using worker: sync
+[2025-08-08 16:23:09 +0000] [10953] [INFO] Booting worker with pid: 10953
+[2025-08-08 16:23:12 +0000] [10950] [INFO] Handling signal: hup
+[2025-08-08 16:23:12 +0000] [10950] [INFO] Hang up: Master
+[2025-08-08 16:23:12 +0000] [11013] [INFO] Booting worker with pid: 11013
+[2025-08-08 16:23:12 +0000] [10950] [ERROR] Worker (pid:10953) was sent SIGHUP!
+[2025-08-08 17:22:35 +0000] [11013] [WARNING] Invalid request from ip=127.0.0.1: Invalid HTTP Version: '213.209.150.159/jaws;sh+/tmp/jaws HTTP/1.0'
+[2025-08-09 04:19:38 +0000] [10950] [INFO] Handling signal: term
+[2025-08-09 04:19:38 +0000] [11013] [INFO] Worker exiting (pid: 11013)
+[2025-08-09 04:19:38 +0000] [10950] [INFO] Shutting down: Master

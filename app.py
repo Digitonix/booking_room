@@ -58,6 +58,7 @@ class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     lantai = db.Column(db.String(10), nullable=True) 
+    image = db.Column(db.String(200), nullable=True) 
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -241,6 +242,12 @@ def book():
     return render_template('booking_form.html', rooms=rooms)
 
 
+UPLOAD_FOLDER_ROOM = os.path.join(app.root_path, 'static', 'rooms')
+os.makedirs(UPLOAD_FOLDER_ROOM, exist_ok=True)
+
+# Simpan konfigurasi khusus untuk room
+app.config['UPLOAD_FOLDER_ROOM'] = UPLOAD_FOLDER_ROOM
+
 @app.route('/rooms')
 def manage_rooms():
     
@@ -253,7 +260,6 @@ def manage_rooms():
 
 @app.route('/rooms/add', methods=['GET', 'POST'])
 def add_room():
-
     if 'role' not in session or session['role'] == 'user':
         flash("Anda tidak punya akses!", "danger")
         return redirect(url_for('home'))
@@ -261,37 +267,95 @@ def add_room():
     if request.method == 'POST':
         name = request.form['name']
         lantai = request.form['lantai']
-        new_room = Room(name=name, lantai=lantai)
+
+        # Upload gambar jika ada
+        image_file = request.files.get('image')
+        image_filename = None
+        if image_file and image_file.filename.strip():
+            ext = os.path.splitext(secure_filename(image_file.filename))[1]
+            image_filename = f"{uuid.uuid4().hex}{ext}"
+            image_path = os.path.join(app.config['UPLOAD_FOLDER_ROOM'], image_filename)
+            image_file.save(image_path)
+
+        new_room = Room(name=name, lantai=lantai, image=image_filename)
         db.session.add(new_room)
         db.session.commit()
         flash('Ruangan berhasil ditambahkan!', 'success')
         return redirect(url_for('manage_rooms'))
+    
     return render_template('rooms/add_room.html')
+
 
 @app.route('/rooms/update/<int:room_id>', methods=['GET', 'POST'])
 def update_room(room_id):
-
     if 'role' not in session or session['role'] == 'user':
         flash("Anda tidak punya akses!", "danger")
         return redirect(url_for('home'))
 
     room = Room.query.get_or_404(room_id)
+    
     if request.method == 'POST':
         room.name = request.form['name']
         room.lantai = request.form['lantai']
+
+        image_file = request.files.get('image')
+        if image_file and image_file.filename.strip():
+            # Hapus gambar lama jika ada
+            if room.image:
+                old_path = os.path.join(app.config['UPLOAD_FOLDER_ROOM'], room.image)
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+
+            # Simpan gambar baru dengan nama unik
+            ext = os.path.splitext(secure_filename(image_file.filename))[1]
+            filename = f"{uuid.uuid4().hex}{ext}"
+            image_path = os.path.join(app.config['UPLOAD_FOLDER_ROOM'], filename)
+            image_file.save(image_path)
+            room.image = filename
+
         db.session.commit()
         flash('Ruangan berhasil diperbarui!', 'success')
         return redirect(url_for('manage_rooms'))
+    
     return render_template('rooms/update_room.html', room=room)
+
+
+@app.route('/rooms/delete/<int:room_id>', methods=['POST'])
+def delete_room_data(room_id):
+    """Delete room & image file"""
+    if 'role' not in session or session['role'] == 'user':
+        flash("Anda tidak punya akses!", "danger")
+        return redirect(url_for('home'))
+
+    room = Room.query.get_or_404(room_id)
+
+    # Hapus file gambar dari folder
+    if room.image:
+        img_path = os.path.join(app.config['UPLOAD_FOLDER_ROOM'], room.image)
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+    db.session.delete(room)
+    db.session.commit()
+
+    flash('Ruangan berhasil dihapus!', 'success')
+    return redirect(url_for('manage_rooms'))
+
 
 @app.route('/rooms/delete/<int:room_id>', methods=['POST'])
 def delete_room(room_id):
-
     if 'role' not in session or session['role'] == 'user':
         flash("Anda tidak punya akses!", "danger")
         return redirect(url_for('home'))
     
     room = Room.query.get_or_404(room_id)
+
+    # Hapus gambar dari folder
+    if room.image:
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], room.image)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
     db.session.delete(room)
     db.session.commit()
     flash('Ruangan berhasil dihapus!', 'danger')
@@ -518,17 +582,14 @@ def jadwal_booking():
 
 
 
+app.config['UPLOAD_URL_ROOM'] = '/static/rooms/'
 @app.route('/schedule')
 def schedule_view():
-
     if 'role' not in session or session['role'] == 'admin''user':
         flash("anda perlu login!", "danger")
         return redirect(url_for('home'))
 
-
     local_now = datetime.utcnow() + timedelta(hours=7)
-
- 
     today_param = request.args.get('date')
     if today_param:
         try:
@@ -540,7 +601,7 @@ def schedule_view():
 
     start_hour = 7
     end_hour = 17
-    now = local_now  # Gunakan waktu lokal untuk realtime clock
+    now = local_now
     current_hour = now.hour if now.date() == selected_date else None
     hours = list(range(start_hour, end_hour + 1))
 
@@ -550,10 +611,21 @@ def schedule_view():
         db.func.date(Booking.start_time) == selected_date
     ).all()
 
+    schedule = {}
+    booking_details = {}
+    room_floors = {}
 
-    schedule = {}             
-    booking_details = {}      
-    room_floors = {}          
+    # DI SINI BAGIAN YANG DITAMBAHKAN UNTUK MENGAMBIL DATA GAMBAR
+    # --------------------------------------------------------------------------------------------------
+    room_image = {}
+    for room in rooms:
+  
+        if room.image:
+            room_image[room.name] = f"{app.config['UPLOAD_URL_ROOM']}{room.image}"
+        else:
+            # Gunakan placeholder jika tidak ada gambar
+            room_image[room.name] = url_for('static', filename='images/placeholder_room.jpg')
+    # --------------------------------------------------------------------------------------------------
 
     for room in rooms:
         room_schedule = {h: None for h in hours}
@@ -565,7 +637,6 @@ def schedule_view():
             start_hour_bk = booking.start_time.hour
             end_hour_bk = booking.end_time.hour
 
-            # Tambahkan 1 jam jika ada menit atau detik
             if booking.end_time.minute > 0 or booking.end_time.second > 0:
                 end_hour_bk += 1
 
@@ -586,7 +657,8 @@ def schedule_view():
         booking_details=booking_details,
         current_hour=current_hour,
         current_time=now,
-        rooms=rooms
+        rooms=rooms,
+        room_image=room_image # <--- PASTIKAN VARIABEL INI DIKIRIM KE TEMPLATE
     )
 
 
@@ -752,7 +824,9 @@ def manage_users():
         "manage_users.html",
         users=users_pagination.items,
         pagination=users_pagination,
-        request=request
+        request=request,
+        max=max, 
+        min=min  
     )
 
 

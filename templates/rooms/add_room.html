@@ -21,7 +21,7 @@
         </div>
 
         <!-- Formulir Tambah Ruangan -->
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <div class="mb-4">
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nama Ruangan</label>
                 <input type="text" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" id="name" name="name" required>
@@ -30,6 +30,16 @@
                 <label for="lantai" class="block text-gray-700 text-sm font-bold mb-2">Lantai</label>
                 <input type="text" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" id="lantai" name="lantai" required>
             </div>
+
+            <!-- Tambahan: Upload Foto -->
+            <div class="mb-6">
+                <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Foto Ruangan</label>
+                <input type="file" id="image" name="image" accept="image/*" class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="mt-4">
+                    <img id="preview" src="#" alt="Preview Foto" class="hidden w-full h-48 object-cover rounded-lg border border-gray-200 shadow-sm">
+                </div>
+            </div>
+
             <div class="flex flex-col sm:flex-row gap-4">
                 <button type="submit" class="w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-full shadow-md transition-colors duration-300">
                     <i class="fa-solid fa-save mr-2"></i> Simpan
@@ -41,6 +51,21 @@
         </form>
 
     </div>
+
+    <!-- Script Preview Gambar -->
+    <script>
+        document.getElementById('image').addEventListener('change', function(event) {
+            const [file] = event.target.files;
+            const preview = document.getElementById('preview');
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
+            } else {
+                preview.src = "#";
+                preview.classList.add('hidden');
+            }
+        });
+    </script>
 
 </body>
 </html>

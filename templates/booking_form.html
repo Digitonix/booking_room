@@ -10,24 +10,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ==================== A. Variabel Warna BRI ==================== */
+      
         :root {
-            --primary-color: #3b82f6; 
-            --primary-hover: #3b82f6;
+            --primary-color: #023047; 
+            --primary-hover: #023047;
             --secondary-color: #6c757d;
             --secondary-hover: #5a6268;
-            --success-color: #4CAF50; /* Hijau modern */
-            --success-hover: #43A047;
+            --success-color: #386641; /* Hijau modern */
+            --success-hover: #6a994e;
             --danger-color: #E53935; /* Merah elegan */
             --danger-hover: #C62828;
             
             /* Latar belakang yang lebih elegan */
-            --card-bg: #f8f9fa;
+            --card-bg: #ffffff;
             --header-bg: var(--primary-color);
-            --body-bg: #e9ecef;
+            --body-bg: #a2d2ff;
         }
 
-        /* ==================== B. Gaya Dasar ==================== */
         body {
             background: var(--body-bg);
             /* Mengganti font-family menjadi 'Poppins' */
@@ -47,7 +46,6 @@
             padding: 0;
         }
 
-        /* ==================== C. Gaya Card (Kotak Form) ==================== */
         .card {
             border: none;
             border-radius: 20px;
@@ -89,7 +87,7 @@
             padding: 40px;
         }
 
-        /* ==================== D. Gaya Form Field (Input, Label, dsb) ==================== */
+    
         .form-label {
             font-weight: 500; /* Mengubah font-weight menjadi 500 agar lebih elegan */
             color: #495057; 
@@ -104,7 +102,7 @@
             color: #3b82f6; /* Warna ikon diubah menjadi emas sebagai aksen */
         }
         
-        /* Gaya input field modern dan minimalis (border bawah saja) */
+
         .form-control,
         .form-select {
             border-radius: 0;
@@ -131,7 +129,7 @@
             font-weight: 300; /* Placeholder dibuat lebih tipis */
         }
         
-        /* ==================== E. Gaya Tombol (Button) ==================== */
+
         .btn {
             border-radius: 12px;
             padding: 14px 25px;
@@ -198,8 +196,7 @@
             transform: translateY(-3px);
             box-shadow: 0 8px 16px rgba(229, 57, 53, 0.25);
         }
-        
-        /* ==================== F. Gaya Alert dan Modal ==================== */
+
         .alert-danger {
             background-color: #f8d7da;
             border-color: #f5c6cb;
@@ -207,7 +204,7 @@
             border-radius: 12px;
         }
         
-        /* Gaya Modal Baru yang lebih modern */
+    
         .modal-content {
             border-radius: 20px;
             text-align: center;
@@ -284,7 +281,7 @@
             margin-bottom: 0;
         }
 
-        /* ==================== G. Penyesuaian untuk Mobile ==================== */
+
         @media (max-width: 767.98px) {
             body { padding: 10px; align-items: flex-start; min-height: auto; }
             .card { border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
